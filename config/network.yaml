@@ -1,0 +1,18 @@
+hostname: armrouter
+dns_servers:
+- 8.8.8.8
+- 8.8.4.4
+wan_interface: eth0
+lan_interface: eth0
+interfaces:
+  eth0:
+    type: ethernet
+    method: dhcp
+    is_up: true
+    mac_address: 02:42:ac:1f:80:39
+    ip_address: 172.31.128.57
+    netmask: 255.255.192.0
+    gateway: ''
+    dns_servers: ''
+    metric: 100
+    role: wan

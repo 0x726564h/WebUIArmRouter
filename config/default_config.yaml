@@ -1,0 +1,231 @@
+###################################
+# ArmRouter - Default Configuration
+###################################
+
+# Network configuration
+network:
+  interfaces:
+    eth0:
+      type: ethernet
+      enabled: true
+      dhcp: true
+      address: ""
+      netmask: ""
+      gateway: ""
+      dns: []
+      metric: 100
+    eth1:
+      type: ethernet
+      enabled: false
+      dhcp: true
+      address: ""
+      netmask: ""
+      gateway: ""
+      dns: []
+      metric: 200
+
+# WiFi configuration
+wifi:
+  available: false
+  adapters: {}
+
+# Firewall configuration
+firewall:
+  enabled: true
+  default_policy:
+    input: DROP
+    output: ACCEPT
+    forward: DROP
+  allow_ping: true
+  allow_established: true
+  allow_related: true
+  open_ports:
+    - port: 22
+      protocol: tcp
+      description: SSH
+    - port: 80
+      protocol: tcp
+      description: HTTP
+    - port: 443
+      protocol: tcp
+      description: HTTPS
+  tables:
+    filter:
+      enabled: true
+      description: "Пакетная фильтрация"
+    nat:
+      enabled: true
+      description: "Преобразование сетевых адресов"
+    mangle:
+      enabled: false
+      description: "Модификация заголовков пакетов"
+    raw:
+      enabled: false
+      description: "Настройка отслеживания соединений"
+  chains:
+    input:
+      table: "filter"
+      description: "Входящие пакеты"
+      policy: DROP
+      enabled: true
+    forward:
+      table: "filter"
+      description: "Перенаправляемые пакеты"
+      policy: DROP
+      enabled: true
+    output:
+      table: "filter"
+      description: "Исходящие пакеты"
+      policy: ACCEPT
+      enabled: true
+    prerouting:
+      table: "nat"
+      description: "Перед маршрутизацией"
+      policy: ACCEPT
+      enabled: true
+    postrouting:
+      table: "nat"
+      description: "После маршрутизации"
+      policy: ACCEPT
+      enabled: true
+  custom_chains:
+    allowed_ports:
+      table: "filter"
+      description: "Разрешенные порты"
+      enabled: true
+    wan_access:
+      table: "filter"
+      description: "Доступ из WAN"
+      enabled: true
+
+# Routing configuration
+routing:
+  static_routes: []
+  enable_forwarding: false
+
+# System settings
+system:
+  hostname: armrouter
+  timezone: UTC
+  language: ru
+  ntp_enabled: true
+  ntp_servers:
+    - 0.pool.ntp.org
+    - 1.pool.ntp.org
+
+# Access settings
+access:
+  ssh_enabled: true
+  web_enabled: true
+  allow_remote_admin: false
+  allowed_networks:
+    - 192.168.0.0/16
+    - 10.0.0.0/8
+    - 127.0.0.0/8
+
+# Tunnel configuration
+tunnel:
+  enabled: false
+  mode: selective
+  default_gateway: ""
+  traffic_routing:
+    mode: all
+    tunnel_selection: first_available
+    geo_countries: []
+    ip_addresses: []
+    domains: []
+  tunnels:
+    - name: OpenVPN
+      type: openvpn
+      enabled: false
+      default: true
+      priority: 10
+      config:
+        config_file: ""
+        auth:
+          username: ""
+          password: ""
+        advanced:
+          mtu: 1500
+          cipher: AES-256-GCM
+          auth_algorithm: SHA256
+    - name: WireGuard
+      type: wireguard
+      enabled: false
+      default: false
+      priority: 20
+      config:
+        interface: wg0
+        private_key: ""
+        address: ""
+        dns: []
+        peers:
+          - public_key: ""
+            endpoint: ""
+            allowed_ips: ["0.0.0.0/0"]
+            keep_alive: 25
+    - name: SSTP
+      type: sstp
+      enabled: false
+      default: false
+      priority: 30
+      config:
+        server: ""
+        auth:
+          username: ""
+          password: ""
+        verify_cert: true
+    - name: IKEv2
+      type: ikev2
+      enabled: false
+      default: false
+      priority: 40
+      config:
+        server: ""
+        auth:
+          username: ""
+          password: ""
+        certificate: ""
+    - name: PPTP
+      type: pptp
+      enabled: false
+      default: false
+      priority: 50
+      config:
+        server: ""
+        auth:
+          username: ""
+          password: ""
+    - name: ZeroTier
+      type: zerotier
+      enabled: false
+      default: false
+      priority: 60
+      config:
+        network_id: ""
+        auth_token: ""
+  tor:
+    enabled: false
+    use_bridges: false
+    use_redsocks: false
+    use_socks2tun: false
+    exit_country: ""
+    bridges:
+      - type: "obfs4"
+        address: ""
+        cert: ""
+    hidden_services: []
+    tunnel_proxy:
+      enabled: false
+      tunnel_name: ""
+
+# Modules
+modules:
+  qos:
+    enabled: false
+  monitoring:
+    enabled: true
+  parental_control:
+    enabled: false
+  secure_tunnels:
+    enabled: true

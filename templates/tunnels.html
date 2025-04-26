@@ -1,0 +1,560 @@
+{% extends "base.html" %}
+
+{% block title %}Безопасные туннели - ArmRouter{% endblock %}
+
+{% block page_title %}Безопасные туннели{% endblock %}
+
+{% block additional_styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/improved-buttons.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/improved-forms.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tabs.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modals.css') }}">
+<style>
+    /* Специфичные стили для страницы туннелей */
+    .tunnel-card {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+    }
+    
+    .tunnel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        background-color: var(--card-header-bg);
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .tunnel-title {
+        display: flex;
+        align-items: center;
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+    
+    .tunnel-title [data-icon] {
+        margin-right: 0.5rem;
+    }
+    
+    .tunnel-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    
+    .status-enabled {
+        background-color: var(--success-color-light);
+        color: var(--success-color);
+    }
+    
+    .status-disabled {
+        background-color: var(--danger-color-light);
+        color: var(--danger-color);
+    }
+    
+    .status-badge [data-icon] {
+        width: 14px;
+        height: 14px;
+        margin-right: 4px;
+    }
+    
+    .tunnel-content {
+        padding: 1rem;
+    }
+    
+    .tunnel-actions {
+        display: flex;
+        justify-content: flex-end;
+        padding: 1rem;
+        border-top: 1px solid var(--border-color);
+        gap: 0.5rem;
+    }
+    
+    .tunnel-type-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: var(--primary-color-light);
+        color: var(--primary-color);
+        margin-right: 0.75rem;
+    }
+    
+    /* Список стран, IP, доменов */
+    .list-items {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        margin-bottom: 1rem;
+    }
+    
+    .list-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .list-item:last-child {
+        border-bottom: none;
+    }
+    
+    .list-item .remove-btn {
+        cursor: pointer;
+        color: var(--danger-color);
+    }
+    
+    .add-item-form {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .add-item-form input {
+        flex: 1;
+    }
+    
+    /* Tor мосты */
+    .bridge-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .bridge-item:last-child {
+        border-bottom: none;
+    }
+    
+    .bridge-details {
+        flex: 1;
+    }
+    
+    .bridge-type {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+    
+    .bridge-address {
+        font-family: monospace;
+        font-size: 0.9rem;
+        word-break: break-all;
+    }
+    
+    /* Пустое состояние */
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted);
+    }
+    
+    .empty-state [data-icon] {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state-title {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state-desc {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Пустая строка для списков */
+    .empty-row {
+        padding: 1rem;
+        text-align: center;
+        color: var(--text-muted);
+    }
+    
+    /* Панели */
+    .panel {
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+    }
+    
+    .panel-header {
+        padding: 0.75rem 1rem;
+        background-color: var(--card-header-bg);
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .panel-header h4 {
+        margin: 0;
+        font-size: 1rem;
+    }
+    
+    .panel-body {
+        padding: 1rem;
+    }
+    
+    /* Утилиты для расположения */
+    .d-flex {
+        display: flex !important;
+    }
+    
+    .justify-content-between {
+        justify-content: space-between !important;
+    }
+    
+    .align-items-center {
+        align-items: center !important;
+    }
+    
+    .text-muted {
+        color: var(--text-muted) !important;
+    }
+    
+    .text-success {
+        color: var(--success-color) !important;
+    }
+    
+    .text-danger {
+        color: var(--danger-color) !important;
+    }
+    
+    .mb-3 {
+        margin-bottom: 1rem !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-header-subtitle">Настройка и управление безопасными туннелями для соединений</div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Панель общих настроек туннелей -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2>Общие настройки туннелей</h2>
+            </div>
+            <div class="card-content">
+                <p class="mb-3">Настройте общие параметры безопасных туннелей, включая правила маршрутизации и режим работы.</p>
+                
+                <!-- Контейнер для общих настроек, загружаемых динамически -->
+                <div id="tunnel-general-settings">
+                    <div class="loading-spinner">
+                        <span data-icon="loader"></span> Загрузка настроек...
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Панель управления туннелями -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2>Туннели</h2>
+                <button type="button" id="add-tunnel-btn" class="btn btn-primary">
+                    <span data-icon="plus"></span> Добавить туннель
+                </button>
+            </div>
+            <div class="card-content">
+                <div id="tunnel-manager">
+                    <!-- Контент будет загружен динамически -->
+                    <div class="loading-spinner">
+                        <span data-icon="loader"></span> Загрузка туннелей...
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Панель настроек Tor -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2>Настройки Tor</h2>
+            </div>
+            <div class="card-content">
+                <p class="mb-3">Настройте параметры работы сети Tor для анонимного серфинга и обхода блокировок.</p>
+                
+                <!-- Табы Tor -->
+                <ul class="nav-tabs mb-3">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#tor-basic">Основные</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#tor-onion">Onion Services</a>
+                    </li>
+                </ul>
+                
+                <!-- Содержимое вкладок Tor -->
+                <div class="tab-content">
+                    <!-- Вкладка основных настроек Tor -->
+                    <div id="tor-basic" class="tab-pane active">
+                        <div class="form-group">
+                            <label class="form-label">Статус Tor</label>
+                            <div class="toggle-group" id="tor-status-toggle">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="tor.enabled">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label">Отключен</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Использовать мосты</label>
+                            <div class="toggle-group">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="tor.use_bridges">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-help">Используйте мосты, если прямые соединения с сетью Tor заблокированы</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Страна выхода</label>
+                            <select name="tor.exit_country" class="form-input form-select">
+                                <option value="">Любая (автоматически)</option>
+                                <option value="us">США</option>
+                                <option value="de">Германия</option>
+                                <option value="nl">Нидерланды</option>
+                                <option value="fr">Франция</option>
+                                <option value="se">Швеция</option>
+                            </select>
+                            <div class="form-help">Выберите страну, через которую будет осуществляться выход из сети Tor</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Использовать туннель для соединения с Tor</label>
+                            <div class="toggle-group">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="tor.tunnel_proxy.enabled">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-help">Подключаться к сети Tor через выбранный туннель для обхода блокировок</div>
+                        </div>
+                        
+                        <div id="tor-tunnel-select" style="display: none;">
+                            <div class="form-group">
+                                <label class="form-label">Туннель для подключения</label>
+                                <select name="tor.tunnel_proxy.tunnel_name" class="form-input form-select">
+                                    <option value="">Нет доступных туннелей</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-primary" id="save-tor-settings">
+                                <span data-icon="save"></span> Сохранить настройки
+                            </button>
+                            <button type="button" class="btn btn-outline" id="restart-tor-service">
+                                <span data-icon="refresh-cw"></span> Перезапустить службу Tor
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Вкладка Onion Services -->
+                    <div id="tor-onion" class="tab-pane">
+                        <div class="form-group">
+                            <label class="form-label">Включить Onion Services</label>
+                            <div class="toggle-group">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="tor.onion_services.enabled">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-help">Предоставление сервисов, доступных через сеть Tor</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Порты для публикации</label>
+                            <input type="text" class="form-input" placeholder="80,443,8080" name="tor.onion_services.ports">
+                            <div class="form-help">Список портов через запятую, которые будут доступны через Onion Services</div>
+                        </div>
+                        
+                        <div class="panel mb-3">
+                            <div class="panel-header">
+                                <h4>Текущие Onion-адреса</h4>
+                            </div>
+                            <div class="panel-body" id="onion-addresses">
+                                <div class="empty-row">Нет активных Onion-адресов</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-primary" id="save-onion-settings">
+                                <span data-icon="save"></span> Сохранить настройки
+                            </button>
+                            <button type="button" class="btn btn-outline" id="restart-onion-service">
+                                <span data-icon="refresh-cw"></span> Перезапустить Onion Services
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Настройки прокси-перенаправления -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2>Настройки прокси-перенаправления</h2>
+            </div>
+            <div class="card-content">
+                <p class="mb-3">Выберите метод перенаправления трафика через туннели для всей системы.</p>
+                
+                <div class="form-group">
+                    <label class="form-label">Метод перенаправления трафика</label>
+                    <select name="proxy_method" class="form-input form-select">
+                        <option value="none">Не использовать (только для приложений с поддержкой прокси)</option>
+                        <option value="redsocks2">Redsocks2 (TCP трафик)</option>
+                        <option value="socks2tun">Socks2tun (создание TUN-интерфейса)</option>
+                    </select>
+                </div>
+                
+                <div id="redsocks2-settings" class="proxy-settings-panel">
+                    <div class="panel mb-3">
+                        <div class="panel-header">
+                            <h4>Настройки Redsocks2</h4>
+                        </div>
+                        <div class="panel-body">
+                            <p>Redsocks2 перенаправляет TCP-трафик на SOCKS/HTTP-прокси через правила iptables.</p>
+                            <div class="form-group">
+                                <label class="form-label">Порт для перехвата</label>
+                                <input type="number" class="form-input" name="proxy.redsocks2.port" value="12345">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Исключения</label>
+                                <textarea class="form-input" name="proxy.redsocks2.exceptions" rows="3" placeholder="192.168.0.0/16
+127.0.0.0/8
+10.0.0.0/8"></textarea>
+                                <div class="form-help">IP-адреса и подсети, которые не будут перенаправляться через прокси (по одному на строку)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="socks2tun-settings" class="proxy-settings-panel" style="display: none;">
+                    <div class="panel mb-3">
+                        <div class="panel-header">
+                            <h4>Настройки Socks2tun</h4>
+                        </div>
+                        <div class="panel-body">
+                            <p>Socks2tun создает виртуальный TUN-интерфейс для маршрутизации IP-трафика через SOCKS-прокси.</p>
+                            <div class="form-group">
+                                <label class="form-label">Имя интерфейса</label>
+                                <input type="text" class="form-input" name="proxy.socks2tun.interface" value="tun0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">MTU</label>
+                                <input type="number" class="form-input" name="proxy.socks2tun.mtu" value="1500">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">DNS-серверы</label>
+                                <input type="text" class="form-input" name="proxy.socks2tun.dns" placeholder="8.8.8.8, 1.1.1.1">
+                                <div class="form-help">DNS-серверы через запятую для использования с туннелем</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-primary" id="save-proxy-settings">
+                        <span data-icon="save"></span> Сохранить настройки
+                    </button>
+                    <button type="button" class="btn btn-outline" id="restart-proxy-service">
+                        <span data-icon="refresh-cw"></span> Перезапустить службу прокси
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/modules/tunnel-modal.js') }}"></script>
+<script src="{{ url_for('static', filename='js/modules/tunnels.js') }}"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация табов
+        document.querySelectorAll('.nav-tabs .nav-link').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                const tabId = this.getAttribute('href').substring(1);
+                
+                // Деактивировать все вкладки и панели
+                document.querySelectorAll('.nav-tabs .nav-link').forEach(t => {
+                    t.classList.remove('active');
+                });
+                document.querySelectorAll('.tab-pane').forEach(p => {
+                    p.classList.remove('active');
+                });
+                
+                // Активировать выбранную вкладку и панель
+                this.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // Инициализация переключателя отображения настроек туннеля для Tor
+        const torTunnelCheckbox = document.querySelector('input[name="tor.tunnel_proxy.enabled"]');
+        if (torTunnelCheckbox) {
+            torTunnelCheckbox.addEventListener('change', function() {
+                const torTunnelSelect = document.getElementById('tor-tunnel-select');
+                if (torTunnelSelect) {
+                    torTunnelSelect.style.display = this.checked ? 'block' : 'none';
+                }
+            });
+        }
+        
+        // Инициализация переключателя метода прокси
+        const proxyMethodSelect = document.querySelector('select[name="proxy_method"]');
+        if (proxyMethodSelect) {
+            proxyMethodSelect.addEventListener('change', function() {
+                const redsocksPanel = document.getElementById('redsocks2-settings');
+                const socks2tunPanel = document.getElementById('socks2tun-settings');
+                
+                if (redsocksPanel && socks2tunPanel) {
+                    if (this.value === 'redsocks2') {
+                        redsocksPanel.style.display = 'block';
+                        socks2tunPanel.style.display = 'none';
+                    } else if (this.value === 'socks2tun') {
+                        redsocksPanel.style.display = 'none';
+                        socks2tunPanel.style.display = 'block';
+                    } else {
+                        redsocksPanel.style.display = 'none';
+                        socks2tunPanel.style.display = 'none';
+                    }
+                }
+            });
+        }
+        
+        // Загрузить менеджер туннелей
+        if (typeof loadTunnelManager === 'function') {
+            loadTunnelManager();
+        } else {
+            console.error('Функция loadTunnelManager не определена');
+        }
+    });
+</script>
+{% endblock %}

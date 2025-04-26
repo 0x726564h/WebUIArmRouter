@@ -1,0 +1,40 @@
+enabled: true
+default_policy:
+  input: DROP
+  output: ACCEPT
+  forward: DROP
+allow_ping: true
+allow_established: true
+allow_related: true
+rules:
+- name: Allow SSH
+  action: ACCEPT
+  chain: INPUT
+  protocol: tcp
+  destination_port: '22'
+  enabled: true
+  priority: 100
+- name: Allow HTTP
+  action: ACCEPT
+  chain: INPUT
+  protocol: tcp
+  destination_port: '80'
+  enabled: true
+  priority: 100
+- name: Allow HTTPS
+  action: ACCEPT
+  chain: INPUT
+  protocol: tcp
+  destination_port: '443'
+  enabled: true
+  priority: 100
+open_ports:
+- port: 22
+  protocol: tcp
+  description: SSH
+- port: 80
+  protocol: tcp
+  description: HTTP
+- port: 443
+  protocol: tcp
+  description: HTTPS

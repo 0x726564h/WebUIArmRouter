@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="#242444" stroke="#42a5f5" stroke-width="5" />
+  
+  <!-- Router stylized "A" shape -->
+  <g fill="#42a5f5">
+    <!-- Left antenna -->
+    <rect x="50" y="30" width="5" height="20" rx="2" />
+    <circle cx="52.5" cy="25" r="5" />
+    
+    <!-- Right antenna -->
+    <rect x="145" y="30" width="5" height="20" rx="2" />
+    <circle cx="147.5" cy="25" r="5" />
+    
+    <!-- Main router body -->
+    <rect x="40" y="60" width="120" height="80" rx="8" />
+    
+    <!-- Router cutout (middle "A" shape) -->
+    <path d="M100,60 L60,140 L140,140 Z" fill="#242444" />
+    
+    <!-- Network ports -->
+    <rect x="55" y="150" width="10" height="15" rx="2" />
+    <rect x="75" y="150" width="10" height="15" rx="2" />
+    <rect x="95" y="150" width="10" height="15" rx="2" />
+    <rect x="115" y="150" width="10" height="15" rx="2" />
+    <rect x="135" y="150" width="10" height="15" rx="2" />
+    
+    <!-- Status lights -->
+    <circle cx="60" cy="80" r="5" fill="#4caf50" />
+    <circle cx="80" cy="80" r="5" fill="#ffeb3b" />
+    <circle cx="100" cy="80" r="5" fill="#f44336" />
+    
+    <!-- WiFi signal -->
+    <path d="M120,80 Q135,70 150,80" fill="none" stroke="#42a5f5" stroke-width="3" stroke-linecap="round" />
+    <path d="M120,73 Q140,58 160,73" fill="none" stroke="#42a5f5" stroke-width="3" stroke-linecap="round" />
+    <path d="M120,66 Q145,46 170,66" fill="none" stroke="#42a5f5" stroke-width="3" stroke-linecap="round" />
+  </g>
+  
+  <!-- Connections (showing data flow) -->
+  <g stroke="#42a5f5" stroke-width="2" stroke-dasharray="4,2">
+    <path d="M60,110 L140,110" />
+    <path d="M100,110 L100,130" />
+  </g>
+</svg>

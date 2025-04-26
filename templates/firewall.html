@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Межсетевой экран - ArmRouter{% endblock %}
+
+{% block page_title %}Межсетевой экран{% endblock %}
+
+{% block additional_styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/tabs.css') }}">
+
+<style>
+    /* Styles for firewall page */
+    .ports-table th:first-child,
+    .ports-table td:first-child {
+        width: 20%;
+    }
+    
+    .ports-table th:nth-child(2),
+    .ports-table td:nth-child(2) {
+        width: 20%;
+    }
+    
+    .ports-table th:nth-child(3),
+    .ports-table td:nth-child(3) {
+        width: 45%;
+    }
+    
+    .ports-table th:last-child,
+    .ports-table td:last-child {
+        width: 15%;
+        text-align: center;
+    }
+    
+    .empty-row {
+        text-align: center;
+        color: var(--text-muted);
+        padding: 20px;
+    }
+    
+    .policy-badges {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    
+    .notifications-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 1000;
+        max-width: 400px;
+    }
+    
+    .notification {
+        background-color: var(--card-bg);
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        animation: slideIn 0.3s ease;
+        width: 100%;
+    }
+    
+    .notification.fade-out {
+        animation: fadeOut 0.3s ease forwards;
+    }
+    
+    .notification-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .notification-header h4 {
+        margin: 0;
+        font-size: 1rem;
+    }
+    
+    .notification-body {
+        padding: 0.75rem 1rem;
+    }
+    
+    .notification-close {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .notification-success {
+        border-left: 4px solid var(--success-color);
+    }
+    
+    .notification-error {
+        border-left: 4px solid var(--danger-color);
+    }
+    
+    .notification-warning {
+        border-left: 4px solid var(--warning-color);
+    }
+    
+    .notification-info {
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    /* Animations */
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+        }
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    .rule-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .rule-item:last-child {
+        border-bottom: none;
+    }
+    
+    .rule-details {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .rule-title {
+        font-weight: 500;
+    }
+    
+    .rule-description {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+    
+    .rule-actions {
+        display: flex;
+        gap: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="page-header-subtitle">Управление правилами и фильтрацией сетевого трафика</div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div id="firewall-module">
+            <!-- Firewall content will be loaded dynamically -->
+            <div class="loading-spinner">
+                <span data-icon="loader"></span> Загрузка...
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- API helper -->
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+
+<!-- Firewall module -->
+<script src="{{ url_for('static', filename='js/modules/firewall.js') }}"></script>
+
+<script>
+    /**
+     * Close a modal dialog
+     * @param {HTMLElement} modal - Modal element
+     */
+    function closeModal(modal) {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.remove();
+        }, 300);
+    }
+
+    /**
+     * Show notification
+     * @param {string} type - Notification type (success, error, warning, info)
+     * @param {string} title - Title
+     * @param {string} message - Message
+     */
+    function showNotification(type, title, message) {
+        // Create notification
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <div class="notification-header">
+                <h4>${title}</h4>
+                <button type="button" class="notification-close">
+                    <span data-icon="x"></span>
+                </button>
+            </div>
+            <div class="notification-body">
+                ${message}
+            </div>
+        `;
+        
+        // Add to notifications container
+        const container = document.querySelector('.notifications-container');
+        if (!container) {
+            // Create container if it doesn't exist
+            const newContainer = document.createElement('div');
+            newContainer.className = 'notifications-container';
+            document.body.appendChild(newContainer);
+            newContainer.appendChild(notification);
+        } else {
+            container.appendChild(notification);
+        }
+        
+        // Initialize icons
+        if (window.IconsLoader) window.IconsLoader.init(notification);
+        
+        // Add close handler
+        const closeButton = notification.querySelector('.notification-close');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                notification.classList.add('fade-out');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            });
+        }
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            notification.classList.add('fade-out');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 5000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load firewall module
+        loadFirewallModule();
+    });
+</script>
+{% endblock %}

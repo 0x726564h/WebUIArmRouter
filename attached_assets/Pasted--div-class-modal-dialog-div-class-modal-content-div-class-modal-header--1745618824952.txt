@@ -1,0 +1,109 @@
+<div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Добавить интерфейс</h3>
+                <button class="modal-close" id="closeAddInterfaceModal">
+                    <span data-icon="x" class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addInterfaceForm">
+                    <div class="form-group">
+                        <label for="newInterfaceType">Тип интерфейса</label>
+                        <select class="form-control" id="newInterfaceType">
+                            <option value="vlan">VLAN</option>
+                            <option value="bridge">Мост (Bridge)</option>
+                            <option value="bond">Агрегация (Bond)</option>
+                            <option value="tun">Туннель (TUN)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newInterfaceName">Имя интерфейса</label>
+                        <input type="text" class="form-control" id="newInterfaceName" placeholder="vlan0">
+                    </div>
+                    
+                    <div id="vlanSettings">
+                        <div class="form-group">
+                            <label for="vlanParent">Родительский интерфейс</label>
+                            <select class="form-control" id="vlanParent">
+                                <option value="eth0">eth0</option>
+                                <option value="eth1">eth1</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="vlanId">VLAN ID</label>
+                            <input type="number" class="form-control" id="vlanId" min="1" max="4094" placeholder="10">
+                        </div>
+                    </div>
+                    
+                    <div id="bridgeSettings" style="display: none;">
+                        <div class="form-group">
+                            <label>Интерфейсы для моста</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox">
+                                    <input type="checkbox" name="bridgeInterfaces" value="eth0">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-label">eth0</span>
+                                </label>
+                                <label class="checkbox">
+                                    <input type="checkbox" name="bridgeInterfaces" value="eth1">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-label">eth1</span>
+                                </label>
+                                <label class="checkbox">
+                                    <input type="checkbox" name="bridgeInterfaces" value="wlan0">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-label">wlan0</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="bondSettings" style="display: none;">
+                        <div class="form-group">
+                            <label>Интерфейсы для агрегации</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox">
+                                    <input type="checkbox" name="bondInterfaces" value="eth0">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-label">eth0</span>
+                                </label>
+                                <label class="checkbox">
+                                    <input type="checkbox" name="bondInterfaces" value="eth1">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-label">eth1</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="bondMode">Режим агрегации</label>
+                            <select class="form-control" id="bondMode">
+                                <option value="balance-rr">Балансировка (round-robin)</option>
+                                <option value="active-backup">Активный/Резервный</option>
+                                <option value="balance-xor">XOR</option>
+                                <option value="broadcast">Широковещательный</option>
+                                <option value="802.3ad">IEEE 802.3ad</option>
+                                <option value="balance-tlb">Адаптивная балансировка исходящего</option>
+                                <option value="balance-alb">Адаптивная балансировка</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="tunSettings" style="display: none;">
+                        <div class="form-group">
+                            <label for="tunType">Тип туннеля</label>
+                            <select class="form-control" id="tunType">
+                                <option value="tun">TUN (IP)</option>
+                                <option value="tap">TAP (Ethernet)</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-light" id="cancelAddInterfaceBtn">Отмена</button>
+                <button class="btn btn-primary" id="confirmAddInterfaceBtn">Добавить</button>
+            </div>
+        </div>
+    </div>

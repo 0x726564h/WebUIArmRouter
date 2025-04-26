@@ -1,0 +1,21 @@
+# Системные настройки
+
+# Основные настройки
+hostname: armrouter
+timezone: UTC
+language: ru
+
+# Настройки обновлений
+auto_update: false
+update_channel: stable
+
+# Настройки доступа
+allow_ssh: true
+ssh_port: 22
+allow_web_access: true
+web_port: 8000
+enable_https: false
+
+# Настройки интерфейса
+system_theme: dark
+ui_scale: 100

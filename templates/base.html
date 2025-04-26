@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ArmRouter{% endblock %}</title>
+    
+    <!-- Основные стили -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/themes.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/improved-forms.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/improved-buttons.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modals.css') }}">
+    
+    <!-- Дополнительные стили для отдельных компонентов -->
+    {% block additional_styles %}{% endblock %}
+    
+    <!-- Базовый скрипт для инициализации иконок -->
+    <script src="{{ url_for('static', filename='js/components/icons-loader.js') }}"></script>
+</head>
+<body class="light-theme">
+    <div class="app-container">
+        <!-- Боковая панель -->
+        <aside class="sidebar">
+            <!-- Логотип и название продукта -->
+            <div class="sidebar-header">
+                <a href="/" class="logo">
+                    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="ArmRouter Logo">
+                    <span>ArmRouter</span>
+                </a>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <span data-icon="menu"></span>
+                </button>
+            </div>
+            
+            <!-- Меню -->
+            <nav class="sidebar-menu">
+                <ul>
+                    <li>
+                        <a href="/" class="{{ 'active' if request.path == '/' else '' }}">
+                            <span data-icon="home"></span>
+                            <span class="menu-text">Главная</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/network" class="{{ 'active' if '/network' in request.path and '/topology' not in request.path else '' }}">
+                            <span data-icon="globe"></span>
+                            <span class="menu-text">Сеть</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/topology" class="{{ 'active' if '/topology' in request.path else '' }}">
+                            <span data-icon="git-branch"></span>
+                            <span class="menu-text">Топология</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/wifi" class="{{ 'active' if '/wifi' in request.path else '' }}">
+                            <span data-icon="wifi"></span>
+                            <span class="menu-text">Wi-Fi</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/firewall" class="{{ 'active' if '/firewall' in request.path else '' }}">
+                            <span data-icon="shield"></span>
+                            <span class="menu-text">Межсетевой экран</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/tunnels" class="{{ 'active' if '/tunnels' in request.path or '/vpn' in request.path else '' }}">
+                            <span data-icon="key"></span>
+                            <span class="menu-text">Безопасные туннели</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/routing" class="{{ 'active' if '/routing' in request.path else '' }}">
+                            <span data-icon="shuffle"></span>
+                            <span class="menu-text">Маршрутизация</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/modules" class="{{ 'active' if '/modules' in request.path else '' }}">
+                            <span data-icon="package"></span>
+                            <span class="menu-text">Модули</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/settings" class="{{ 'active' if '/settings' in request.path else '' }}">
+                            <span data-icon="settings"></span>
+                            <span class="menu-text">Настройки</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <!-- Основной контент -->
+        <main class="main-content">
+            <!-- Верхняя панель -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle" id="mobileMenuToggle">
+                        <span data-icon="menu"></span>
+                    </button>
+                    <h1 class="page-title">{% block page_title %}ArmRouter{% endblock %}</h1>
+                </div>
+                <div class="topbar-right">
+                    <button class="icon-button toggle-theme" id="themeToggle">
+                        <span data-icon="moon"></span>
+                    </button>
+                    <div class="dropdown">
+                        <button class="icon-button" id="userDropdown">
+                            <span data-icon="user"></span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a href="/settings/profile">
+                                <span data-icon="user"></span>
+                                Профиль
+                            </a>
+                            <a href="/logout">
+                                <span data-icon="log-out"></span>
+                                Выход
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Контент страницы -->
+            <div class="content">
+                {% block content %}{% endblock %}
+            </div>
+            
+            <!-- Подвал -->
+            <footer class="footer">
+                <div class="footer-content">
+                    <p>&copy; 2025 ArmRouter. Все права защищены.</p>
+                </div>
+            </footer>
+        </main>
+    </div>
+    
+    <!-- Контейнер для уведомлений -->
+    <div id="notification-container"></div>
+    
+    <!-- Базовые скрипты -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Инициализация иконок
+            console.log('Инициализация иконок...');
+            if (window.IconsLoader) {
+                window.IconsLoader.init();
+            }
+            
+            // Переключение темы
+            const themeToggle = document.getElementById('themeToggle');
+            const body = document.body;
+            
+            themeToggle.addEventListener('click', function() {
+                if (body.classList.contains('light-theme')) {
+                    body.classList.remove('light-theme');
+                    body.classList.add('dark-theme');
+                    themeToggle.querySelector('[data-icon]').setAttribute('data-icon', 'sun');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    body.classList.remove('dark-theme');
+                    body.classList.add('light-theme');
+                    themeToggle.querySelector('[data-icon]').setAttribute('data-icon', 'moon');
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+            
+            // Проверка сохраненной темы
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                body.classList.remove('light-theme');
+                body.classList.add('dark-theme');
+                themeToggle.querySelector('[data-icon]').setAttribute('data-icon', 'sun');
+            }
+            
+            // Переключение мобильного меню
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const appContainer = document.querySelector('.app-container');
+            
+            function toggleSidebar() {
+                appContainer.classList.toggle('sidebar-collapsed');
+            }
+            
+            if (mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', toggleSidebar);
+            }
+            
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+            
+            // Обработчик для выпадающих меню
+            const dropdowns = document.querySelectorAll('.dropdown');
+            
+            dropdowns.forEach(function(dropdown) {
+                const button = dropdown.querySelector('button');
+                const menu = dropdown.querySelector('.dropdown-menu');
+                
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdown.classList.toggle('show');
+                });
+            });
+            
+            // Закрытие выпадающих меню при клике вне
+            document.addEventListener('click', function() {
+                dropdowns.forEach(function(dropdown) {
+                    dropdown.classList.remove('show');
+                });
+            });
+            
+            // Автоматическое скрытие уведомлений
+            function createNotification(message, type = 'info') {
+                const container = document.getElementById('notification-container');
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                
+                let iconName = 'info';
+                if (type === 'success') iconName = 'check-circle';
+                if (type === 'error') iconName = 'alert-triangle';
+                
+                notification.innerHTML = `
+                    <div class="notification-icon">
+                        <span data-icon="${iconName}"></span>
+                    </div>
+                    <div class="notification-content">${message}</div>
+                    <button class="notification-close">
+                        <span data-icon="x"></span>
+                    </button>
+                `;
+                
+                container.appendChild(notification);
+                
+                // Инициализация иконок в уведомлении
+                if (window.IconsLoader) {
+                    window.IconsLoader.init(notification);
+                }
+                
+                // Обработчик для закрытия уведомления
+                const closeButton = notification.querySelector('.notification-close');
+                closeButton.addEventListener('click', function() {
+                    hideNotification(notification);
+                });
+                
+                // Автоматическое скрытие через 5 секунд
+                setTimeout(function() {
+                    hideNotification(notification);
+                }, 5000);
+                
+                return notification;
+            }
+            
+            function hideNotification(notification) {
+                notification.classList.add('notification-hiding');
+                
+                notification.addEventListener('animationend', function() {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                });
+            }
+            
+            // Глобальная функция для создания уведомлений
+            window.showNotification = createNotification;
+        });
+    </script>
+    
+    <!-- Дополнительные скрипты для страницы -->
+    {% block scripts %}{% endblock %}
+</body>
+</html>

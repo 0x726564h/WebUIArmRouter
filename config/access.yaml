@@ -1,0 +1,43 @@
+# Настройки доступа
+
+# SSH настройки
+ssh:
+  enabled: true
+  port: 22
+  allow_password: true
+  allow_key: true
+  allowed_networks:
+    - 192.168.0.0/16
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+
+# Веб-интерфейс
+web:
+  enabled: true
+  port: 8000
+  https: false
+  ssl_cert: ""
+  ssl_key: ""
+  allowed_networks:
+    - 192.168.0.0/16
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+
+# API
+api:
+  enabled: true
+  port: 8080
+  auth_required: true
+  allowed_networks:
+    - 192.168.0.0/16
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+
+# Пользователи
+users:
+  - username: admin
+    hashed_password: $2b$12$QdCQtONJJ0RwF0q3YJ6u6.h0yD4JVbBPMiL7DCw6wbIW8a9uxjESO  # password
+    is_admin: true
+  - username: user
+    hashed_password: $2b$12$hhHJGrZHpXoTgCjbJxJ9.ONpjZcyAk5gMNZlBmN/S0tYVd7m0CCHe  # user123
+    is_admin: false

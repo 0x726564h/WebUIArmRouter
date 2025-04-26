@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+
+{% block title %}ArmRouter - Управление WiFi{% endblock %}
+{% block page_title %}Управление WiFi{% endblock %}
+
+{% block additional_styles %}
+<style>
+    .wifi-signal {
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .wifi-signal-strength {
+        display: inline-flex;
+        flex-direction: column;
+        margin-right: 10px;
+    }
+    
+    .wifi-signal-strength span {
+        width: 3px;
+        background-color: var(--primary-color);
+        margin-right: 2px;
+        border-radius: 1px;
+    }
+    
+    .wifi-signal-strength span:nth-child(1) { height: 5px; }
+    .wifi-signal-strength span:nth-child(2) { height: 8px; }
+    .wifi-signal-strength span:nth-child(3) { height: 12px; }
+    .wifi-signal-strength span:nth-child(4) { height: 16px; }
+    
+    .wifi-signal-weak .wifi-signal-strength span:nth-child(n+2) { 
+        background-color: var(--border-color);
+    }
+    
+    .wifi-signal-medium .wifi-signal-strength span:nth-child(n+3) { 
+        background-color: var(--border-color);
+    }
+    
+    .wifi-signal-good .wifi-signal-strength span:nth-child(n+4) { 
+        background-color: var(--border-color);
+    }
+    
+    .wifi-secured {
+        color: var(--success-color);
+    }
+    
+    .wifi-open {
+        color: var(--warning-color);
+    }
+    
+    .network-list {
+        margin-top: 1rem;
+    }
+    
+    .network-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-color);
+        transition: background-color 0.2s;
+    }
+    
+    .network-item:hover {
+        background-color: var(--hover-bg);
+    }
+    
+    .network-item:last-child {
+        border-bottom: none;
+    }
+    
+    .network-info {
+        flex: 1;
+    }
+    
+    .network-name {
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+    
+    .network-details {
+        display: flex;
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+    
+    .network-details > div {
+        margin-right: 16px;
+    }
+    
+    .wifi-mode-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 20px;
+    }
+    
+    .wifi-mode-tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+    }
+    
+    .wifi-mode-tab.active {
+        border-bottom-color: var(--primary-color);
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+    
+    .wifi-adapters-tabs {
+        display: flex;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .wifi-adapter-tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .wifi-adapter-tab.active {
+        border-bottom-color: var(--primary-color);
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+    
+    .wifi-adapter-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+    }
+    
+    .wifi-adapter-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        background-color: var(--info-bg);
+        color: var(--info-color);
+        border-radius: 10px;
+        padding: 2px 6px;
+        margin-left: 5px;
+    }
+    
+    .adapter-mode-badge {
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 12px;
+        margin-left: 5px;
+    }
+    
+    .adapter-mode-badge.client {
+        background-color: var(--primary-light-bg);
+        color: var(--primary-color);
+    }
+    
+    .adapter-mode-badge.ap {
+        background-color: var(--success-light-bg);
+        color: var(--success-color);
+    }
+    
+    .adapter-mode-badge.disabled {
+        background-color: var(--border-color);
+        color: var(--text-secondary);
+    }
+    
+    .adapter-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .adapter-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 1rem;
+    }
+    
+    .adapter-title {
+        font-size: 1.1rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+    }
+    
+    .adapter-actions {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .add-adapter-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+        border: 2px dashed var(--border-color);
+        border-radius: var(--border-radius);
+        background-color: var(--card-bg);
+        color: var(--text-secondary);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 1rem;
+    }
+    
+    .add-adapter-btn:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Управление WiFi</h1>
+    <div class="page-actions">
+        <button class="btn btn-light" id="refreshWiFiBtn">
+            <span data-icon="refresh-cw"></span>
+            Обновить
+        </button>
+    </div>
+</div>
+
+<div class="page-content">
+    <div id="wifi-module">
+        <div class="loading-spinner">
+            <span data-icon="loader"></span> Загрузка...
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/modules/wifi.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация модуля WiFi
+        loadWifiModule();
+        
+        // Обработчик кнопки обновления
+        const refreshBtn = document.getElementById('refreshWiFiBtn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', function() {
+                loadWifiModule();
+            });
+        }
+        
+        // Функция для отображения уведомлений
+        window.showNotification = function(type, title, message) {
+            // Проверяем, есть ли глобальная функция создания уведомлений
+            if (typeof createNotification === 'function') {
+                createNotification(`${title}: ${message}`, type);
+                return;
+            }
+            
+            // Резервная реализация, если глобальная функция не доступна
+            const container = document.getElementById('notification-container');
+            if (!container) return;
+            
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            
+            // Иконка в зависимости от типа
+            let iconName = 'info';
+            if (type === 'success') iconName = 'check-circle';
+            if (type === 'error') iconName = 'alert-triangle';
+            if (type === 'warning') iconName = 'alert-circle';
+            
+            notification.innerHTML = `
+                <div class="notification-icon">
+                    <span data-icon="${iconName}"></span>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">${title}</div>
+                    <div class="notification-message">${message}</div>
+                </div>
+                <button class="notification-close">
+                    <span data-icon="x"></span>
+                </button>
+            `;
+            
+            container.appendChild(notification);
+            
+            // Инициализация иконок в уведомлении
+            if (window.IconsLoader) {
+                window.IconsLoader.init(notification);
+            }
+            
+            // Автоматическое скрытие
+            setTimeout(() => {
+                notification.classList.add('notification-hiding');
+                notification.addEventListener('animationend', () => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                });
+            }, 5000);
+            
+            // Обработчик закрытия
+            const closeBtn = notification.querySelector('.notification-close');
+            closeBtn.addEventListener('click', () => {
+                notification.classList.add('notification-hiding');
+                notification.addEventListener('animationend', () => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                });
+            });
+        };
+    });
+</script>
+{% endblock %}

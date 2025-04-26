@@ -1,0 +1,285 @@
+/**
+ * Улучшенные стили для кнопок
+ */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: var(--border-radius);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+    outline: none;
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.btn:focus {
+    box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.25);
+}
+
+.btn:disabled, .btn.disabled {
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+.btn [data-icon] {
+    width: 18px;
+    height: 18px;
+}
+
+/* Основные стили */
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-color-dark);
+    border-color: var(--primary-color-dark);
+}
+
+.btn-primary:active {
+    background-color: var(--primary-color-darker);
+    border-color: var(--primary-color-darker);
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+.btn-outline:hover {
+    background-color: var(--bg-light);
+    border-color: var(--border-color-dark);
+}
+
+.btn-outline:active {
+    background-color: var(--bg-dark);
+    border-color: var(--border-color-dark);
+}
+
+/* Цветные кнопки */
+.btn-success {
+    background-color: var(--success-color);
+    color: white;
+    border-color: var(--success-color);
+}
+
+.btn-success:hover {
+    background-color: var(--success-color-dark);
+    border-color: var(--success-color-dark);
+}
+
+.btn-success:active {
+    background-color: var(--success-color-darker);
+    border-color: var(--success-color-darker);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+    border-color: var(--danger-color);
+}
+
+.btn-danger:hover {
+    background-color: var(--danger-color-dark);
+    border-color: var(--danger-color-dark);
+}
+
+.btn-danger:active {
+    background-color: var(--danger-color-darker);
+    border-color: var(--danger-color-darker);
+}
+
+.btn-warning {
+    background-color: var(--warning-color);
+    color: white;
+    border-color: var(--warning-color);
+}
+
+.btn-warning:hover {
+    background-color: var(--warning-color-dark);
+    border-color: var(--warning-color-dark);
+}
+
+.btn-warning:active {
+    background-color: var(--warning-color-darker);
+    border-color: var(--warning-color-darker);
+}
+
+.btn-info {
+    background-color: var(--info-color);
+    color: white;
+    border-color: var(--info-color);
+}
+
+.btn-info:hover {
+    background-color: var(--info-color-dark);
+    border-color: var(--info-color-dark);
+}
+
+.btn-info:active {
+    background-color: var(--info-color-darker);
+    border-color: var(--info-color-darker);
+}
+
+/* Размеры кнопок */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+.btn-sm [data-icon] {
+    width: 16px;
+    height: 16px;
+}
+
+.btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+
+.btn-lg [data-icon] {
+    width: 20px;
+    height: 20px;
+}
+
+/* Кнопка только с иконкой */
+.btn-icon {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+}
+
+.btn-icon.btn-sm {
+    width: 30px;
+    height: 30px;
+}
+
+.btn-icon.btn-lg {
+    width: 46px;
+    height: 46px;
+}
+
+/* Группы кнопок */
+.btn-group {
+    display: inline-flex;
+    position: relative;
+}
+
+.btn-group .btn {
+    position: relative;
+    flex: 1 1 auto;
+}
+
+.btn-group .btn:not(:first-child) {
+    margin-left: -1px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.btn-group .btn:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.btn-group .btn:hover {
+    z-index: 1;
+}
+
+.btn-group .btn:focus, 
+.btn-group .btn:active {
+    z-index: 2;
+}
+
+/* Кнопка с загрузкой */
+.btn-loading {
+    color: transparent !important;
+    pointer-events: none;
+    position: relative;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: calc(50% - 8px);
+    left: calc(50% - 8px);
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-top-color: white;
+    animation: btn-spinner 0.6s linear infinite;
+}
+
+@keyframes btn-spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Блочная кнопка (на всю ширину) */
+.btn-block {
+    display: flex;
+    width: 100%;
+}
+
+/* Маргины для пространства между кнопками */
+.me-2 {
+    margin-right: 0.5rem;
+}
+
+.ms-2 {
+    margin-left: 0.5rem;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+/* Анимация для эффекта волны */
+.btn-ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-ripple::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 1;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%, -50%);
+    transform-origin: 50% 50%;
+    animation: ripple 0.5s 1 ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0) translate(-50%, -50%);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(20, 20) translate(-50%, -50%);
+        opacity: 0;
+    }
+}

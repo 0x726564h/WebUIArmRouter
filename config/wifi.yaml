@@ -1,0 +1,26 @@
+adapters:
+  wlan0:
+    enabled: true
+    mode: client
+    client:
+      ssid: HomeFi
+      password: ""
+      encryption: wpa2
+    ap:
+      ssid: ArmRouter-2.4
+      password: router123
+      encryption: wpa2
+      channel: 6
+  
+  wlan1:
+    enabled: true
+    mode: ap
+    client:
+      ssid: ""
+      password: ""
+      encryption: wpa2
+    ap:
+      ssid: ArmRouter-5G
+      password: router123
+      encryption: wpa2
+      channel: 36

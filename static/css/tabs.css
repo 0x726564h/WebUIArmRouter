@@ -1,0 +1,112 @@
+/**
+ * Стили для вкладок (табов)
+ */
+
+/* Контейнер для вкладок */
+.nav-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    padding-left: 0;
+    margin-bottom: 1rem;
+    list-style: none;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Элемент списка вкладок */
+.nav-item {
+    margin-bottom: -1px;
+}
+
+/* Ссылка вкладки */
+.nav-link {
+    display: block;
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+    transition: all 0.15s ease-in-out;
+    cursor: pointer;
+}
+
+/* Ссылка вкладки при наведении */
+.nav-link:hover {
+    color: var(--text-color);
+    border-color: var(--border-color) var(--border-color) transparent;
+}
+
+/* Активная вкладка */
+.nav-link.active {
+    color: var(--primary-color);
+    background-color: var(--card-bg);
+    border-color: var(--border-color) var(--border-color) transparent;
+    border-bottom: 2px solid var(--primary-color);
+    font-weight: 500;
+}
+
+/* Иконка внутри вкладки */
+.nav-link [data-icon] {
+    margin-right: 0.5rem;
+    vertical-align: -0.125em;
+}
+
+/* Контейнер для содержимого вкладок */
+.tab-content {
+    margin-bottom: 1rem;
+}
+
+/* Панель содержимого вкладки */
+.tab-pane {
+    display: none;
+}
+
+/* Активная панель содержимого */
+.tab-pane.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Анимация появления содержимого */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Вертикальные вкладки */
+.nav-tabs-vertical {
+    flex-direction: column;
+    border-bottom: 0;
+    border-right: 1px solid var(--border-color);
+    width: 200px;
+}
+
+.nav-tabs-vertical .nav-item {
+    margin-bottom: 0;
+    margin-right: -1px;
+}
+
+.nav-tabs-vertical .nav-link {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    text-align: left;
+    padding: 0.75rem 1rem;
+}
+
+.nav-tabs-vertical .nav-link.active {
+    border-color: var(--border-color) transparent var(--border-color) var(--border-color);
+    border-right: 2px solid var(--primary-color);
+}
+
+/* Горизонтальное разделение контейнера вкладок */
+.tab-container-horizontal {
+    display: flex;
+}
+
+.tab-container-horizontal .tab-content {
+    flex: 1;
+    padding-left: 1rem;
+}

@@ -1,0 +1,379 @@
+{% extends "base.html" %}
+
+{% block title %}ArmRouter - Главная{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Панель управления</h1>
+</div>
+
+<div class="page-content">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <span data-icon="cpu"></span>
+                </div>
+                <div class="stat-title">CPU</div>
+            </div>
+            <div class="stat-value cpu-usage">--</div>
+            <div class="stat-info cpu-info">--</div>
+            <div class="stat-chart cpu-chart"></div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <span data-icon="database"></span>
+                </div>
+                <div class="stat-title">Память</div>
+            </div>
+            <div class="stat-value memory-usage">--</div>
+            <div class="stat-info memory-info">--</div>
+            <div class="stat-chart memory-chart"></div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <span data-icon="hard-drive"></span>
+                </div>
+                <div class="stat-title">Диск</div>
+            </div>
+            <div class="stat-value disk-usage">--</div>
+            <div class="stat-info disk-info">--</div>
+            <div class="stat-circle-wrapper">
+                <div class="stat-circle">
+                    <div class="stat-circle-bg"></div>
+                    <div class="stat-circle-value"></div>
+                    <div class="stat-circle-text disk-percent">--</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-icon">
+                    <span data-icon="activity"></span>
+                </div>
+                <div class="stat-title">Сеть</div>
+            </div>
+            <div class="stat-value network-status">--</div>
+            <div class="stat-info network-info">--</div>
+            <div class="stat-chart network-chart"></div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2>Информация о системе</h2>
+            <div class="card-actions">
+                <button class="card-toggle">
+                    <span data-icon="chevron-up"></span>
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="label">Имя хоста</div>
+                    <div class="value system-hostname">--</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Операционная система</div>
+                    <div class="value system-platform">--</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Версия</div>
+                    <div class="value system-version">--</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Архитектура</div>
+                    <div class="value system-arch">--</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Ядро</div>
+                    <div class="value system-kernel">--</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Время работы</div>
+                    <div class="value system-uptime">--</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2>Сетевые интерфейсы</h2>
+            <div class="card-actions">
+                <button class="card-toggle">
+                    <span data-icon="chevron-up"></span>
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="table-responsive">
+                <table class="table interfaces-table">
+                    <thead>
+                        <tr>
+                            <th>Интерфейс</th>
+                            <th>Тип</th>
+                            <th>IP адрес</th>
+                            <th>MAC адрес</th>
+                            <th>Статус</th>
+                            <th>RX/TX</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6" class="text-center">Загрузка данных...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Загрузка данных
+    loadSystemInfo();
+    loadStatistics();
+    
+    // Периодическое обновление данных
+    setInterval(loadStatistics, 10000);
+    
+    /**
+     * Загружает информацию о системе
+     */
+    function loadSystemInfo() {
+        console.log('Выполняю GET запрос: /api/dashboard/system-info');
+        fetch('/api/dashboard/system-info')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Получены данные о системе:', data);
+                
+                // Заполняем информацию о системе
+                document.querySelector('.system-hostname').textContent = data.hostname || 'Нет данных';
+                document.querySelector('.system-platform').textContent = data.distro || data.platform || 'Нет данных';
+                document.querySelector('.system-version').textContent = data.platform_version || 'Нет данных';
+                document.querySelector('.system-arch').textContent = data.architecture || 'Нет данных';
+                document.querySelector('.system-kernel').textContent = data.kernel || 'Нет данных';
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки данных о системе:', error);
+            });
+    }
+    
+    /**
+     * Загружает статистику использования ресурсов
+     */
+    function loadStatistics() {
+        console.log('Выполняю GET запрос: /api/dashboard/statistics');
+        fetch('/api/dashboard/statistics')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Получены статистические данные:', data);
+                
+                // Обновляем информацию о CPU
+                if (data.cpu) {
+                    document.querySelector('.cpu-usage').textContent = data.cpu.usage ? data.cpu.usage + '%' : 'Нет данных';
+                    document.querySelector('.cpu-info').textContent = data.cpu.cores ? 
+                        `${data.cpu.cores} ядер, ${data.cpu.threads} потоков, ${data.cpu.frequency}` : 'Нет данных';
+                }
+                
+                // Обновляем информацию о памяти
+                if (data.memory) {
+                    document.querySelector('.memory-usage').textContent = data.memory.percent ? 
+                        data.memory.percent + '%' : 'Нет данных';
+                    document.querySelector('.memory-info').textContent = data.memory.used && data.memory.total ? 
+                        `${formatBytes(data.memory.used)} / ${formatBytes(data.memory.total)}` : 'Нет данных';
+                }
+                
+                // Обновляем информацию о диске
+                if (data.disk) {
+                    // Находим корневой диск или первый в списке
+                    const rootDisk = data.disk['/'] || Object.values(data.disk)[0];
+                    if (rootDisk) {
+                        document.querySelector('.disk-usage').textContent = formatBytes(rootDisk.used || 0);
+                        document.querySelector('.disk-info').textContent = `${formatBytes(rootDisk.free || 0)} свободно из ${formatBytes(rootDisk.total || 0)}`;
+                        document.querySelector('.disk-percent').textContent = rootDisk.percent ? rootDisk.percent + '%' : '0%';
+                        
+                        // Обновляем круговую диаграмму
+                        updateDiskCircle(rootDisk.percent || 0);
+                    }
+                }
+                
+                // Обновляем информацию о сети
+                if (data.network) {
+                    const interfaces = Object.keys(data.network);
+                    if (interfaces.length > 0) {
+                        document.querySelector('.network-status').textContent = interfaces.length + ' интерфейсов';
+                        
+                        // Обновляем таблицу интерфейсов
+                        updateInterfacesTable(data.network);
+                    } else {
+                        document.querySelector('.network-status').textContent = 'Нет данных';
+                    }
+                }
+                
+                // Обновляем информацию о времени работы
+                if (data.uptime) {
+                    document.querySelector('.system-uptime').textContent = formatUptime(data.uptime);
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки статистических данных:', error);
+            });
+    }
+    
+    /**
+     * Обновляет таблицу сетевых интерфейсов
+     */
+    function updateInterfacesTable(interfaces) {
+        const tableBody = document.querySelector('.interfaces-table tbody');
+        let html = '';
+        
+        for (const [name, data] of Object.entries(interfaces)) {
+            html += `
+                <tr>
+                    <td>${name}</td>
+                    <td>${data.type || 'Неизвестно'}</td>
+                    <td>${data.ip || 'Нет данных'}</td>
+                    <td>${data.mac || 'Нет данных'}</td>
+                    <td><span class="status-${data.is_up ? 'up' : 'down'}">${data.is_up ? 'Активен' : 'Отключен'}</span></td>
+                    <td>${formatBytes(data.rx_bytes || 0)} / ${formatBytes(data.tx_bytes || 0)}</td>
+                </tr>
+            `;
+        }
+        
+        if (html === '') {
+            html = '<tr><td colspan="6" class="text-center">Нет данных</td></tr>';
+        }
+        
+        tableBody.innerHTML = html;
+    }
+    
+    /**
+     * Обновляет круговую диаграмму использования диска
+     */
+    function updateDiskCircle(percent) {
+        const circle = document.querySelector('.stat-circle-value');
+        const radius = 35; // Уменьшаем радиус круга
+        const circumference = 2 * Math.PI * radius;
+        
+        // Размер круга пропорционален проценту использования
+        const offset = circumference - (percent / 100) * circumference;
+        
+        // Цвет зависит от заполненности
+        let color = '#34A853'; // Зеленый при <60%
+        if (percent >= 90) {
+            color = '#EA4335'; // Красный при >=90%
+        } else if (percent >= 75) {
+            color = '#FBBC05'; // Желтый при >=75%
+        } else if (percent >= 60) {
+            color = '#4285F4'; // Синий при >=60%
+        }
+        
+        // Создаем SVG для круговой диаграммы
+        const svg = `
+            <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle 
+                    cx="40" 
+                    cy="40" 
+                    r="${radius}" 
+                    stroke="${color}" 
+                    stroke-width="5" 
+                    stroke-dasharray="${circumference}" 
+                    stroke-dashoffset="${offset}" 
+                    fill="none"
+                    transform="rotate(-90 40 40)"
+                />
+            </svg>
+        `;
+        
+        circle.innerHTML = svg;
+    }
+    
+    /**
+     * Форматирует байты в человекочитаемый формат
+     */
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 B';
+        
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+    
+    /**
+     * Форматирует время работы системы
+     */
+    function formatUptime(seconds) {
+        const days = Math.floor(seconds / 86400);
+        seconds %= 86400;
+        
+        const hours = Math.floor(seconds / 3600);
+        seconds %= 3600;
+        
+        const minutes = Math.floor(seconds / 60);
+        
+        let result = '';
+        if (days > 0) {
+            result += days + ' ' + pluralize(days, 'день', 'дня', 'дней') + ' ';
+        }
+        
+        if (hours > 0 || days > 0) {
+            result += hours + ' ' + pluralize(hours, 'час', 'часа', 'часов') + ' ';
+        }
+        
+        result += minutes + ' ' + pluralize(minutes, 'минута', 'минуты', 'минут');
+        
+        return result;
+    }
+    
+    /**
+     * Возвращает правильную форму слова в зависимости от числа
+     */
+    function pluralize(number, one, two, five) {
+        let n = Math.abs(number);
+        n %= 100;
+        if (n >= 5 && n <= 20) {
+            return five;
+        }
+        n %= 10;
+        if (n === 1) {
+            return one;
+        }
+        if (n >= 2 && n <= 4) {
+            return two;
+        }
+        return five;
+    }
+    
+    // Обработчики для карточек
+    document.querySelectorAll('.card-toggle').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const card = this.closest('.card');
+            card.classList.toggle('collapsed');
+            
+            // Обновляем иконку
+            const icon = this.querySelector('[data-icon]');
+            if (card.classList.contains('collapsed')) {
+                icon.setAttribute('data-icon', 'chevron-down');
+            } else {
+                icon.setAttribute('data-icon', 'chevron-up');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

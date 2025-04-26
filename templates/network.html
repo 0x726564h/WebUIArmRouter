@@ -1,0 +1,1178 @@
+{% extends "base.html" %}
+
+{% block title %}ArmRouter - Управление сетью{% endblock %}
+{% block page_title %}Управление сетью{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Сетевые интерфейсы</h1>
+    <div class="page-actions">
+        <button class="btn btn-light" id="refreshInterfacesBtn">
+            <span data-icon="refresh-cw"></span>
+            Обновить
+        </button>
+        <button class="btn btn-primary" id="addInterfaceBtn">
+            <span data-icon="plus"></span>
+            Добавить интерфейс
+        </button>
+    </div>
+</div>
+
+<div class="page-content">
+    <div class="card">
+        <div class="card-header">
+            <h2>Активные интерфейсы</h2>
+            <div class="card-actions">
+                <button class="card-toggle">
+                    <span data-icon="chevron-up"></span>
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <div class="table-responsive">
+                <table class="table" id="interfacesTable">
+                    <thead>
+                        <tr>
+                            <th>Имя</th>
+                            <th>Тип</th>
+                            <th>IP адрес</th>
+                            <th>MAC адрес</th>
+                            <th>Статус</th>
+                            <th>Скорость</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="7" class="text-center">Загрузка данных...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card" id="interfaceDetailsCard" style="display: none;">
+        <div class="card-header">
+            <h2>Настройки интерфейса <span id="selectedInterfaceName"></span></h2>
+            <div class="card-actions">
+                <button class="btn btn-icon" id="closeInterfaceDetails">
+                    <span data-icon="x"></span>
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <form id="interfaceForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="interfaceName">Имя интерфейса</label>
+                        <input type="text" class="form-control" id="interfaceName" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="interfaceType">Тип интерфейса</label>
+                        <input type="text" class="form-control" id="interfaceType" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="interfaceMac">MAC адрес</label>
+                        <input type="text" class="form-control" id="interfaceMac" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="switch">
+                        <input type="checkbox" id="interfaceEnabled">
+                        <span class="switch-slider"></span>
+                    </label>
+                    <span class="ml-2">Включить интерфейс</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>Метод настройки IP</label>
+                    <div class="radio-group">
+                        <label class="radio">
+                            <input type="radio" name="ipMethod" value="dhcp" checked>
+                            <span class="radio-custom"></span>
+                            <span class="radio-label">DHCP (автоматическое получение адреса)</span>
+                        </label>
+                        <label class="radio">
+                            <input type="radio" name="ipMethod" value="static">
+                            <span class="radio-custom"></span>
+                            <span class="radio-label">Статический IP адрес</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div id="staticIpSettings" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ipAddress">IP адрес</label>
+                            <input type="text" class="form-control" id="ipAddress" placeholder="192.168.1.100">
+                        </div>
+                        <div class="form-group">
+                            <label for="subnetMask">Маска подсети</label>
+                            <input type="text" class="form-control" id="subnetMask" placeholder="255.255.255.0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="gateway">Основной шлюз</label>
+                            <input type="text" class="form-control" id="gateway" placeholder="192.168.1.1">
+                        </div>
+                        <div class="form-group">
+                            <label for="dns1">Предпочитаемый DNS</label>
+                            <input type="text" class="form-control" id="dns1" placeholder="8.8.8.8">
+                        </div>
+                        <div class="form-group">
+                            <label for="dns2">Альтернативный DNS</label>
+                            <input type="text" class="form-control" id="dns2" placeholder="8.8.4.4">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="mtu">MTU</label>
+                    <input type="number" class="form-control" id="mtu" placeholder="1500">
+                    <div class="form-hint">Значение 1500 подходит для большинства сетей. Изменяйте значение только если точно знаете, что делаете.</div>
+                </div>
+                
+                <div class="form-row mt-4">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary" id="saveInterfaceBtn">
+                            <span data-icon="save"></span>
+                            Сохранить
+                        </button>
+                        <button type="button" class="btn btn-light" id="resetInterfaceBtn">
+                            <span data-icon="refresh-cw"></span>
+                            Сбросить
+                        </button>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="form-row mt-4">
+                <div class="form-group">
+                    <h3>Статистика интерфейса</h3>
+                    <div class="table-responsive">
+                        <table class="table" id="interfaceStatsTable">
+                            <thead>
+                                <tr>
+                                    <th>Параметр</th>
+                                    <th>Значение</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Статус</td>
+                                    <td><span id="statStatus" class="status-up">Активен</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Скорость соединения</td>
+                                    <td id="statSpeed">--</td>
+                                </tr>
+                                <tr>
+                                    <td>Прием (RX)</td>
+                                    <td id="statRx">--</td>
+                                </tr>
+                                <tr>
+                                    <td>Передача (TX)</td>
+                                    <td id="statTx">--</td>
+                                </tr>
+                                <tr>
+                                    <td>Ошибки приема</td>
+                                    <td id="statRxErrors">--</td>
+                                </tr>
+                                <tr>
+                                    <td>Ошибки передачи</td>
+                                    <td id="statTxErrors">--</td>
+                                </tr>
+                                <tr>
+                                    <td>Время активности</td>
+                                    <td id="statUptime">--</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2>Глобальные настройки сети</h2>
+            <div class="card-actions">
+                <button class="card-toggle">
+                    <span data-icon="chevron-up"></span>
+                </button>
+            </div>
+        </div>
+        <div class="card-content">
+            <form id="globalNetworkForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hostname">Имя хоста</label>
+                        <input type="text" class="form-control" id="hostname" placeholder="router">
+                    </div>
+                    <div class="form-group">
+                        <label for="domain">Домен</label>
+                        <input type="text" class="form-control" id="domain" placeholder="local">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>DNS серверы</label>
+                    <div id="dnsServersList">
+                        <div class="form-row mb-2">
+                            <div class="form-group" style="flex: 1;">
+                                <input type="text" class="form-control" name="dnsServer" placeholder="8.8.8.8">
+                            </div>
+                            <div style="width: 40px; display: flex; align-items: center; justify-content: center;">
+                                <button type="button" class="btn btn-icon btn-sm" data-action="remove-dns">
+                                    <span data-icon="trash-2"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-light btn-sm" id="addDnsBtn">
+                        <span data-icon="plus"></span>
+                        Добавить DNS
+                    </button>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="defaultRoute">Маршрут по умолчанию</label>
+                        <select class="form-control" id="defaultRoute">
+                            <option value="">Автоматически</option>
+                            <option value="eth0">eth0</option>
+                            <option value="wlan0">wlan0</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <h3 class="mt-4 mb-3">Настройки WAN и LAN</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="wanInterface">WAN интерфейс</label>
+                        <select class="form-control" id="wanInterface">
+                            <option value="">Не выбран</option>
+                            <option value="eth0">eth0</option>
+                            <option value="wlan0">wlan0</option>
+                        </select>
+                        <div class="form-hint">Интерфейс для подключения к интернету (провайдеру)</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lanInterface">LAN интерфейс</label>
+                        <select class="form-control" id="lanInterface">
+                            <option value="">Не выбран</option>
+                            <option value="eth1">eth1</option>
+                            <option value="br0">br0</option>
+                        </select>
+                        <div class="form-hint">Интерфейс для локальной сети</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="switch">
+                        <input type="checkbox" id="enableDhcpServer">
+                        <span class="switch-slider"></span>
+                    </label>
+                    <span class="ml-2">Включить DHCP сервер для LAN</span>
+                </div>
+                
+                <div id="dhcpServerSettings" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dhcpStartIp">Начальный IP</label>
+                            <input type="text" class="form-control" id="dhcpStartIp" placeholder="192.168.1.100">
+                        </div>
+                        <div class="form-group">
+                            <label for="dhcpEndIp">Конечный IP</label>
+                            <input type="text" class="form-control" id="dhcpEndIp" placeholder="192.168.1.200">
+                        </div>
+                        <div class="form-group">
+                            <label for="dhcpLeaseTime">Время аренды (ч)</label>
+                            <input type="number" class="form-control" id="dhcpLeaseTime" placeholder="24">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group mt-4">
+                    <button type="button" class="btn btn-primary" id="saveGlobalSettingsBtn">
+                        <span data-icon="save"></span>
+                        Сохранить настройки
+                    </button>
+                    <button type="button" class="btn btn-light" id="resetGlobalSettingsBtn">
+                        <span data-icon="refresh-cw"></span>
+                        Сбросить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно добавления интерфейса -->
+<div class="modal" id="addInterfaceModal">
+    <div class="modal-backdrop" id="closeModalBackdrop"></div>
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3>Добавить интерфейс</h3>
+            <button class="modal-close" id="closeAddInterfaceModal">
+                <span data-icon="x"></span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="addInterfaceForm">
+                <div class="form-group">
+                    <label for="newInterfaceType">Тип интерфейса</label>
+                    <select class="form-control" id="newInterfaceType">
+                        <option value="vlan">VLAN</option>
+                        <option value="bridge">Мост (Bridge)</option>
+                        <option value="bond">Агрегация (Bond)</option>
+                        <option value="tun">Туннель (TUN)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="newInterfaceName">Имя интерфейса</label>
+                    <input type="text" class="form-control" id="newInterfaceName" placeholder="vlan0">
+                </div>
+                
+                <div id="vlanSettings">
+                    <div class="form-group">
+                        <label for="vlanParent">Родительский интерфейс</label>
+                        <select class="form-control" id="vlanParent">
+                            <option value="eth0">eth0</option>
+                            <option value="eth1">eth1</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="vlanId">VLAN ID</label>
+                        <input type="number" class="form-control" id="vlanId" min="1" max="4094" placeholder="10">
+                    </div>
+                </div>
+                
+                <div id="bridgeSettings" style="display: none;">
+                    <div class="form-group">
+                        <label>Интерфейсы для моста</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox">
+                                <input type="checkbox" name="bridgeInterfaces" value="eth0">
+                                <span class="checkbox-custom"></span>
+                                <span class="checkbox-label">eth0</span>
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" name="bridgeInterfaces" value="eth1">
+                                <span class="checkbox-custom"></span>
+                                <span class="checkbox-label">eth1</span>
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" name="bridgeInterfaces" value="wlan0">
+                                <span class="checkbox-custom"></span>
+                                <span class="checkbox-label">wlan0</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="bondSettings" style="display: none;">
+                    <div class="form-group">
+                        <label>Интерфейсы для агрегации</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox">
+                                <input type="checkbox" name="bondInterfaces" value="eth0">
+                                <span class="checkbox-custom"></span>
+                                <span class="checkbox-label">eth0</span>
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" name="bondInterfaces" value="eth1">
+                                <span class="checkbox-custom"></span>
+                                <span class="checkbox-label">eth1</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bondMode">Режим агрегации</label>
+                        <select class="form-control" id="bondMode">
+                            <option value="balance-rr">Балансировка (round-robin)</option>
+                            <option value="active-backup">Активный/Резервный</option>
+                            <option value="balance-xor">XOR</option>
+                            <option value="broadcast">Широковещательный</option>
+                            <option value="802.3ad">IEEE 802.3ad</option>
+                            <option value="balance-tlb">Адаптивная балансировка исходящего</option>
+                            <option value="balance-alb">Адаптивная балансировка</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="tunSettings" style="display: none;">
+                    <div class="form-group">
+                        <label for="tunType">Тип туннеля</label>
+                        <select class="form-control" id="tunType">
+                            <option value="tun">TUN (IP)</option>
+                            <option value="tap">TAP (Ethernet)</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-light" id="cancelAddInterfaceBtn">Отмена</button>
+            <button class="btn btn-primary" id="confirmAddInterfaceBtn">Добавить</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Элементы интерфейса
+    const interfacesTable = document.getElementById('interfacesTable');
+    const interfaceDetailsCard = document.getElementById('interfaceDetailsCard');
+    const addInterfaceModal = document.getElementById('addInterfaceModal');
+    
+    // Получаем кнопки
+    const refreshInterfacesBtn = document.getElementById('refreshInterfacesBtn');
+    const addInterfaceBtn = document.getElementById('addInterfaceBtn');
+    const closeInterfaceDetails = document.getElementById('closeInterfaceDetails');
+    const saveInterfaceBtn = document.getElementById('saveInterfaceBtn');
+    const resetInterfaceBtn = document.getElementById('resetInterfaceBtn');
+    const saveGlobalSettingsBtn = document.getElementById('saveGlobalSettingsBtn');
+    const resetGlobalSettingsBtn = document.getElementById('resetGlobalSettingsBtn');
+    
+    // Формы
+    const interfaceForm = document.getElementById('interfaceForm');
+    const globalNetworkForm = document.getElementById('globalNetworkForm');
+    const addInterfaceForm = document.getElementById('addInterfaceForm');
+    
+    // Элементы модального окна
+    const closeAddInterfaceModal = document.getElementById('closeAddInterfaceModal');
+    const cancelAddInterfaceBtn = document.getElementById('cancelAddInterfaceBtn');
+    const confirmAddInterfaceBtn = document.getElementById('confirmAddInterfaceBtn');
+    const newInterfaceType = document.getElementById('newInterfaceType');
+    const vlanSettings = document.getElementById('vlanSettings');
+    const bridgeSettings = document.getElementById('bridgeSettings');
+    const bondSettings = document.getElementById('bondSettings');
+    const tunSettings = document.getElementById('tunSettings');
+    
+    // Элементы формы интерфейса
+    const ipMethodRadios = document.querySelectorAll('input[name="ipMethod"]');
+    const staticIpSettings = document.getElementById('staticIpSettings');
+    
+    // Данные
+    let interfaces = [];
+    let selectedInterface = null;
+    
+    // Загружаем данные интерфейсов
+    loadInterfaces();
+    
+    // Загружаем глобальные настройки
+    loadGlobalSettings();
+    
+    /**
+     * Загружает список интерфейсов
+     */
+    function loadInterfaces() {
+        fetch('/api/network/interfaces')
+            .then(response => response.json())
+            .then(data => {
+                interfaces = data;
+                
+                // Обновляем таблицу
+                updateInterfacesTable();
+            })
+            .catch(error => {
+                console.error('Ошибка при загрузке интерфейсов:', error);
+                showNotification('Ошибка при загрузке интерфейсов', 'error');
+            });
+    }
+    
+    /**
+     * Обновляет таблицу интерфейсов
+     */
+    function updateInterfacesTable() {
+        const tableBody = interfacesTable.querySelector('tbody');
+        let html = '';
+        
+        if (interfaces && Object.keys(interfaces).length > 0) {
+            for (const [name, data] of Object.entries(interfaces)) {
+                html += `
+                    <tr>
+                        <td>${name}</td>
+                        <td>${data.type || 'Неизвестно'}</td>
+                        <td>${data.ip || 'Нет данных'}</td>
+                        <td>${data.mac || 'Нет данных'}</td>
+                        <td><span class="status-${data.is_up ? 'up' : 'down'}">${data.is_up ? 'Активен' : 'Отключен'}</span></td>
+                        <td>${data.speed || 'Нет данных'}</td>
+                        <td>
+                            <button class="btn btn-icon btn-sm" data-action="edit" data-interface="${name}" title="Редактировать">
+                                <span data-icon="edit-2"></span>
+                            </button>
+                            <button class="btn btn-icon btn-sm" data-action="toggle" data-interface="${name}" title="${data.is_up ? 'Отключить' : 'Включить'}">
+                                <span data-icon="${data.is_up ? 'toggle-right' : 'toggle-left'}"></span>
+                            </button>
+                            <button class="btn btn-icon btn-sm btn-danger" data-action="delete" data-interface="${name}" title="Удалить">
+                                <span data-icon="trash-2"></span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }
+        } else {
+            html = '<tr><td colspan="7" class="text-center">Нет интерфейсов</td></tr>';
+        }
+        
+        tableBody.innerHTML = html;
+        
+        // Добавляем обработчики событий для кнопок
+        if (window.IconsLoader) {
+            window.IconsLoader.init(tableBody);
+        }
+        
+        // Обработчики кнопок таблицы
+        tableBody.querySelectorAll('[data-action]').forEach(button => {
+            button.addEventListener('click', handleInterfaceAction);
+        });
+    }
+    
+    /**
+     * Обрабатывает действия с интерфейсами
+     */
+    function handleInterfaceAction(event) {
+        const button = event.currentTarget;
+        const action = button.getAttribute('data-action');
+        const interfaceName = button.getAttribute('data-interface');
+        const interfaceData = interfaces[interfaceName];
+        
+        if (!interfaceData) return;
+        
+        switch (action) {
+            case 'edit':
+                showInterfaceDetails(interfaceName, interfaceData);
+                break;
+                
+            case 'toggle':
+                toggleInterface(interfaceName, interfaceData);
+                break;
+                
+            case 'delete':
+                if (confirm(`Вы уверены, что хотите удалить интерфейс ${interfaceName}?`)) {
+                    deleteInterface(interfaceName);
+                }
+                break;
+        }
+    }
+    
+    /**
+     * Показывает детали интерфейса
+     */
+    function showInterfaceDetails(name, data) {
+        selectedInterface = { name, ...data };
+        
+        // Устанавливаем имя выбранного интерфейса
+        document.getElementById('selectedInterfaceName').textContent = name;
+        
+        // Заполняем форму
+        document.getElementById('interfaceName').value = name;
+        document.getElementById('interfaceType').value = data.type || 'Неизвестно';
+        document.getElementById('interfaceMac').value = data.mac || '';
+        document.getElementById('interfaceEnabled').checked = data.is_up || false;
+        
+        // IP метод
+        const ipMethod = data.ip_method || 'dhcp';
+        document.querySelector(`input[name="ipMethod"][value="${ipMethod}"]`).checked = true;
+        
+        // Показываем/скрываем настройки статического IP
+        staticIpSettings.style.display = ipMethod === 'static' ? 'block' : 'none';
+        
+        // Заполняем статические настройки IP, если есть
+        if (data.static_ip) {
+            document.getElementById('ipAddress').value = data.static_ip.address || '';
+            document.getElementById('subnetMask').value = data.static_ip.netmask || '';
+            document.getElementById('gateway').value = data.static_ip.gateway || '';
+            document.getElementById('dns1').value = data.static_ip.dns1 || '';
+            document.getElementById('dns2').value = data.static_ip.dns2 || '';
+        } else {
+            document.getElementById('ipAddress').value = '';
+            document.getElementById('subnetMask').value = '';
+            document.getElementById('gateway').value = '';
+            document.getElementById('dns1').value = '';
+            document.getElementById('dns2').value = '';
+        }
+        
+        // MTU
+        document.getElementById('mtu').value = data.mtu || 1500;
+        
+        // Обновляем статистику интерфейса
+        updateInterfaceStats(data);
+        
+        // Показываем карточку
+        interfaceDetailsCard.style.display = 'block';
+    }
+    
+    /**
+     * Обновляет статистику интерфейса
+     */
+    function updateInterfaceStats(data) {
+        // Статус
+        const statStatus = document.getElementById('statStatus');
+        statStatus.textContent = data.is_up ? 'Активен' : 'Отключен';
+        statStatus.className = `status-${data.is_up ? 'up' : 'down'}`;
+        
+        // Скорость
+        document.getElementById('statSpeed').textContent = data.speed || 'Нет данных';
+        
+        // RX/TX
+        document.getElementById('statRx').textContent = formatBytes(data.rx_bytes || 0);
+        document.getElementById('statTx').textContent = formatBytes(data.tx_bytes || 0);
+        
+        // Ошибки
+        document.getElementById('statRxErrors').textContent = data.rx_errors || 0;
+        document.getElementById('statTxErrors').textContent = data.tx_errors || 0;
+        
+        // Аптайм
+        document.getElementById('statUptime').textContent = data.uptime ? formatUptime(data.uptime) : 'Нет данных';
+    }
+    
+    /**
+     * Загружает глобальные настройки сети
+     */
+    function loadGlobalSettings() {
+        fetch('/api/network/config')
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.network) {
+                    // Заполняем форму
+                    const network = data.network;
+                    document.getElementById('hostname').value = network.hostname || '';
+                    document.getElementById('domain').value = network.domain || '';
+                    document.getElementById('defaultRoute').value = network.default_route || '';
+                    
+                    // Заполняем настройки WAN и LAN
+                    document.getElementById('wanInterface').value = network.wan_interface || '';
+                    document.getElementById('lanInterface').value = network.lan_interface || '';
+                    
+                    // Настройки DHCP сервера
+                    const dhcpServer = network.dhcp_server || {};
+                    const enableDhcpServer = document.getElementById('enableDhcpServer');
+                    
+                    if (dhcpServer.enabled) {
+                        enableDhcpServer.checked = true;
+                        document.getElementById('dhcpServerSettings').style.display = 'block';
+                    } else {
+                        enableDhcpServer.checked = false;
+                        document.getElementById('dhcpServerSettings').style.display = 'none';
+                    }
+                    
+                    document.getElementById('dhcpStartIp').value = dhcpServer.start_ip || '';
+                    document.getElementById('dhcpEndIp').value = dhcpServer.end_ip || '';
+                    document.getElementById('dhcpLeaseTime').value = dhcpServer.lease_time || 24;
+                
+                // DNS серверы
+                if (network.dns_servers && network.dns_servers.length > 0) {
+                    const dnsServersList = document.getElementById('dnsServersList');
+                    dnsServersList.innerHTML = '';
+                    
+                    network.dns_servers.forEach(server => {
+                        const row = document.createElement('div');
+                        row.className = 'form-row mb-2';
+                        row.innerHTML = `
+                            <div class="form-group" style="flex: 1;">
+                                <input type="text" class="form-control" name="dnsServer" value="${server}" placeholder="8.8.8.8">
+                            </div>
+                            <div style="width: 40px; display: flex; align-items: center; justify-content: center;">
+                                <button type="button" class="btn btn-icon btn-sm" data-action="remove-dns">
+                                    <span data-icon="trash-2"></span>
+                                </button>
+                            </div>
+                        `;
+                        
+                        dnsServersList.appendChild(row);
+                    });
+                    
+                    // Инициализируем иконки
+                    if (window.IconsLoader) {
+                        window.IconsLoader.init(dnsServersList);
+                    }
+                    
+                    // Добавляем обработчики
+                    dnsServersList.querySelectorAll('[data-action="remove-dns"]').forEach(button => {
+                        button.addEventListener('click', function() {
+                            this.closest('.form-row').remove();
+                        });
+                    });
+                }
+                
+                // Маршрут по умолчанию уже установлен выше в:
+                // document.getElementById('defaultRoute').value = network.default_route || '';
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при загрузке глобальных настроек:', error);
+                showNotification('Ошибка при загрузке глобальных настроек', 'error');
+            });
+                    
+
+    }
+    
+    /**
+     * Включает/выключает интерфейс
+     */
+    function toggleInterface(name, data) {
+        const newState = !data.is_up;
+        
+        fetch(`/api/network/interfaces/${name}/toggle`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ enabled: newState })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(`Интерфейс ${name} ${newState ? 'включен' : 'отключен'}`, 'success');
+                    
+                    // Перезагружаем интерфейсы
+                    loadInterfaces();
+                } else {
+                    showNotification(`Ошибка при изменении состояния интерфейса: ${data.message}`, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при изменении состояния интерфейса:', error);
+                showNotification('Ошибка при изменении состояния интерфейса', 'error');
+            });
+    }
+    
+    /**
+     * Удаляет интерфейс
+     */
+    function deleteInterface(name) {
+        fetch(`/api/network/interfaces/${name}`, {
+            method: 'DELETE'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(`Интерфейс ${name} удален`, 'success');
+                    
+                    // Перезагружаем интерфейсы
+                    loadInterfaces();
+                    
+                    // Если удаляемый интерфейс сейчас отображается, закрываем детали
+                    if (selectedInterface && selectedInterface.name === name) {
+                        interfaceDetailsCard.style.display = 'none';
+                        selectedInterface = null;
+                    }
+                } else {
+                    showNotification(`Ошибка при удалении интерфейса: ${data.message}`, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при удалении интерфейса:', error);
+                showNotification('Ошибка при удалении интерфейса', 'error');
+            });
+    }
+    
+    /**
+     * Сохраняет настройки интерфейса
+     */
+    function saveInterfaceSettings() {
+        if (!selectedInterface) return;
+        
+        const name = selectedInterface.name;
+        const isEnabled = document.getElementById('interfaceEnabled').checked;
+        const ipMethod = document.querySelector('input[name="ipMethod"]:checked').value;
+        const mtu = document.getElementById('mtu').value;
+        
+        // Собираем данные о статическом IP, если выбран такой метод
+        let staticIp = null;
+        if (ipMethod === 'static') {
+            staticIp = {
+                address: document.getElementById('ipAddress').value,
+                netmask: document.getElementById('subnetMask').value,
+                gateway: document.getElementById('gateway').value,
+                dns1: document.getElementById('dns1').value,
+                dns2: document.getElementById('dns2').value
+            };
+        }
+        
+        // Формируем данные для отправки
+        const data = {
+            enabled: isEnabled,
+            ip_method: ipMethod,
+            mtu: parseInt(mtu) || 1500,
+            static_ip: staticIp
+        };
+        
+        // Отправляем запрос
+        fetch(`/api/network/interfaces/${name}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(`Настройки интерфейса ${name} сохранены`, 'success');
+                    
+                    // Перезагружаем интерфейсы
+                    loadInterfaces();
+                } else {
+                    showNotification(`Ошибка при сохранении настроек интерфейса: ${data.message}`, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при сохранении настроек интерфейса:', error);
+                showNotification('Ошибка при сохранении настроек интерфейса', 'error');
+            });
+    }
+    
+    /**
+     * Сохраняет глобальные настройки сети
+     */
+    function saveGlobalSettings() {
+        const hostname = document.getElementById('hostname').value;
+        const domain = document.getElementById('domain').value;
+        
+        // Собираем DNS серверы
+        const dnsServers = Array.from(document.querySelectorAll('input[name="dnsServer"]')).map(input => input.value).filter(value => value.trim() !== '');
+        
+        // Получаем маршрут по умолчанию
+        const defaultRoute = document.getElementById('defaultRoute').value;
+        
+        // Получаем настройки WAN и LAN
+        const wanInterface = document.getElementById('wanInterface').value;
+        const lanInterface = document.getElementById('lanInterface').value;
+        
+        // Получаем настройки DHCP сервера
+        const enableDhcpServer = document.getElementById('enableDhcpServer').checked;
+        const dhcpStartIp = document.getElementById('dhcpStartIp').value;
+        const dhcpEndIp = document.getElementById('dhcpEndIp').value;
+        const dhcpLeaseTime = document.getElementById('dhcpLeaseTime').value;
+        
+        // Формируем данные для отправки
+        const data = {
+            network: {
+                hostname,
+                domain,
+                dns_servers: dnsServers,
+                default_route: defaultRoute,
+                wan_interface: wanInterface,
+                lan_interface: lanInterface,
+                dhcp_server: {
+                    enabled: enableDhcpServer,
+                    start_ip: dhcpStartIp,
+                    end_ip: dhcpEndIp,
+                    lease_time: parseInt(dhcpLeaseTime) || 24
+                }
+            }
+        };
+        
+        // Отправляем запрос
+        fetch('/api/network/config', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Глобальные настройки сети сохранены', 'success');
+                } else {
+                    showNotification(`Ошибка при сохранении глобальных настроек: ${data.message}`, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при сохранении глобальных настроек:', error);
+                showNotification('Ошибка при сохранении глобальных настроек', 'error');
+            });
+    }
+    
+    /**
+     * Добавляет новый интерфейс
+     */
+    function addInterface() {
+        const type = document.getElementById('newInterfaceType').value;
+        const name = document.getElementById('newInterfaceName').value;
+        
+        if (!name) {
+            alert('Введите имя интерфейса');
+            return;
+        }
+        
+        // Формируем данные в зависимости от типа интерфейса
+        let data = { type, name };
+        
+        switch (type) {
+            case 'vlan':
+                const vlanParent = document.getElementById('vlanParent').value;
+                const vlanId = document.getElementById('vlanId').value;
+                
+                if (!vlanParent || !vlanId) {
+                    alert('Заполните все поля для VLAN интерфейса');
+                    return;
+                }
+                
+                data.vlan = {
+                    parent: vlanParent,
+                    id: parseInt(vlanId)
+                };
+                break;
+                
+            case 'bridge':
+                const bridgeInterfaces = Array.from(document.querySelectorAll('input[name="bridgeInterfaces"]:checked')).map(input => input.value);
+                
+                if (bridgeInterfaces.length < 2) {
+                    alert('Выберите не менее двух интерфейсов для моста');
+                    return;
+                }
+                
+                data.bridge = {
+                    interfaces: bridgeInterfaces
+                };
+                break;
+                
+            case 'bond':
+                const bondInterfaces = Array.from(document.querySelectorAll('input[name="bondInterfaces"]:checked')).map(input => input.value);
+                const bondMode = document.getElementById('bondMode').value;
+                
+                if (bondInterfaces.length < 2) {
+                    alert('Выберите не менее двух интерфейсов для агрегации');
+                    return;
+                }
+                
+                data.bond = {
+                    interfaces: bondInterfaces,
+                    mode: bondMode
+                };
+                break;
+                
+            case 'tun':
+                const tunType = document.getElementById('tunType').value;
+                
+                data.tun = {
+                    type: tunType
+                };
+                break;
+        }
+        
+        // Отправляем запрос
+        fetch('/api/network/interfaces', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(`Интерфейс ${name} создан`, 'success');
+                    
+                    // Закрываем модальное окно
+                    addInterfaceModal.classList.remove('show');
+                    
+                    // Сбрасываем форму
+                    addInterfaceForm.reset();
+                    
+                    // Перезагружаем интерфейсы
+                    loadInterfaces();
+                } else {
+                    showNotification(`Ошибка при создании интерфейса: ${data.message}`, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при создании интерфейса:', error);
+                showNotification('Ошибка при создании интерфейса', 'error');
+            });
+    }
+    
+    /**
+     * Форматирует байты в человекочитаемый формат
+     */
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 B';
+        
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+    
+    /**
+     * Форматирует время в человекочитаемый формат
+     */
+    function formatUptime(seconds) {
+        const days = Math.floor(seconds / 86400);
+        seconds %= 86400;
+        
+        const hours = Math.floor(seconds / 3600);
+        seconds %= 3600;
+        
+        const minutes = Math.floor(seconds / 60);
+        seconds %= 60;
+        
+        let result = '';
+        
+        if (days > 0) {
+            result += days + ' д ';
+        }
+        
+        if (hours > 0 || days > 0) {
+            result += hours + ' ч ';
+        }
+        
+        if (minutes > 0 || hours > 0 || days > 0) {
+            result += minutes + ' мин ';
+        }
+        
+        result += seconds + ' с';
+        
+        return result;
+    }
+    
+    /**
+     * Показывает уведомление
+     */
+    function showNotification(message, type = 'info') {
+        if (window.showNotification) {
+            window.showNotification(message, type);
+        } else {
+            console.log(`[${type}] ${message}`);
+        }
+    }
+    
+    // Обработчики событий
+    
+    // Обработчик кнопки обновления интерфейсов
+    refreshInterfacesBtn.addEventListener('click', loadInterfaces);
+    
+    // Обработчик кнопки добавления интерфейса
+    addInterfaceBtn.addEventListener('click', function() {
+        addInterfaceModal.classList.add('show');
+    });
+    
+    // Добавляем обработчик для закрытия модального окна при клике на фон
+    document.getElementById('closeModalBackdrop').addEventListener('click', function() {
+        addInterfaceModal.classList.remove('show');
+    });
+    
+    // Обработчик кнопки закрытия деталей интерфейса
+    closeInterfaceDetails.addEventListener('click', function() {
+        interfaceDetailsCard.style.display = 'none';
+        selectedInterface = null;
+    });
+    
+    // Обработчик кнопки сохранения настроек интерфейса
+    saveInterfaceBtn.addEventListener('click', saveInterfaceSettings);
+    
+    // Обработчик кнопки сброса формы интерфейса
+    resetInterfaceBtn.addEventListener('click', function() {
+        if (selectedInterface) {
+            showInterfaceDetails(selectedInterface.name, selectedInterface);
+        }
+    });
+    
+    // Обработчик кнопки сохранения глобальных настроек
+    saveGlobalSettingsBtn.addEventListener('click', saveGlobalSettings);
+    
+    // Обработчик кнопки сброса глобальных настроек
+    resetGlobalSettingsBtn.addEventListener('click', loadGlobalSettings);
+    
+    // Обработчики для модального окна
+    closeAddInterfaceModal.addEventListener('click', function() {
+        addInterfaceModal.classList.remove('show');
+    });
+    
+    cancelAddInterfaceBtn.addEventListener('click', function() {
+        addInterfaceModal.classList.remove('show');
+    });
+    
+    confirmAddInterfaceBtn.addEventListener('click', addInterface);
+    
+    // Обработчик типа нового интерфейса
+    newInterfaceType.addEventListener('change', function() {
+        const type = this.value;
+        
+        // Скрываем все настройки
+        vlanSettings.style.display = 'none';
+        bridgeSettings.style.display = 'none';
+        bondSettings.style.display = 'none';
+        tunSettings.style.display = 'none';
+        
+        // Показываем нужные настройки
+        switch (type) {
+            case 'vlan':
+                vlanSettings.style.display = 'block';
+                break;
+            case 'bridge':
+                bridgeSettings.style.display = 'block';
+                break;
+            case 'bond':
+                bondSettings.style.display = 'block';
+                break;
+            case 'tun':
+                tunSettings.style.display = 'block';
+                break;
+        }
+    });
+    
+    // Обработчик метода IP
+    ipMethodRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            staticIpSettings.style.display = this.value === 'static' ? 'block' : 'none';
+        });
+    });
+    
+    // Обработчик кнопки добавления DNS
+    document.getElementById('addDnsBtn').addEventListener('click', function() {
+        const dnsServersList = document.getElementById('dnsServersList');
+        
+        const row = document.createElement('div');
+        row.className = 'form-row mb-2';
+        row.innerHTML = `
+            <div class="form-group" style="flex: 1;">
+                <input type="text" class="form-control" name="dnsServer" placeholder="8.8.8.8">
+            </div>
+            <div style="width: 40px; display: flex; align-items: center; justify-content: center;">
+                <button type="button" class="btn btn-icon btn-sm" data-action="remove-dns">
+                    <span data-icon="trash-2"></span>
+                </button>
+            </div>
+        `;
+        
+        dnsServersList.appendChild(row);
+        
+        // Инициализируем иконки
+        if (window.IconsLoader) {
+            window.IconsLoader.init(row);
+        }
+        
+        // Добавляем обработчик
+        row.querySelector('[data-action="remove-dns"]').addEventListener('click', function() {
+            row.remove();
+        });
+    });
+    
+    // Закрытие модального окна при клике на фон
+    addInterfaceModal.addEventListener('click', function(event) {
+        if (event.target === addInterfaceModal) {
+            addInterfaceModal.classList.remove('show');
+        }
+    });
+});
+</script>
+{% endblock %}

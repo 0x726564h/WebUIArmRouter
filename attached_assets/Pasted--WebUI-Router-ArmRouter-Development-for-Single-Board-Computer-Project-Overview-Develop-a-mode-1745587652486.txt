@@ -1,0 +1,104 @@
+# WebUI Router "ArmRouter" Development for Single-Board Computer
+
+## Project Overview
+Develop a modern, modular WebUI Router interface for a single-board computer. 
+The application should follow a clean, coder-style design with day/night theme support. 
+The system will use YAML for configuration storage, FastAPI for the backend, and a modern JavaScript framework for the frontend (Only HTML, CSS, JS)
+
+## Architecture Requirements
+- **Frontend**: Modern JavaScript framework with responsive design (Only HTML, CSS, JS, work on Python FastAPI)
+- **Backend**: Python FastAPI
+- **Configuration Storage**: YAML files
+- **Development Approach**: Sequential programming with module-by-module implementation (frontend + backend for each module)
+
+## Modules to Implement
+1. Dashboard
+2. Network Settings (WAN, LAN)
+3. WiFi Configuration
+4. Firewall
+5. Tunnel Manager
+   - Traffic routing modes (all traffic through tunnel, geo-based, IP-based, domain-based)
+   - Tor + Tor services
+   - VPN clients
+   - V2Ray client and others
+6. Routing
+7. General Settings
+   - Hostname
+   - Timezone (NTP)
+   - SSH and Web access
+   - Module Manager (install, remove, enable/disable)
+
+## Development Process
+Follow this strict sequential development approach:
+
+1. **Phase 1: Overall Structure**
+   - Design the frontend architecture
+   - Create the base layout with navigation
+   - Implement theme switching (day/night)
+   - Set up the FastAPI backend structure
+   - Implement YAML configuration handling
+
+2. **Phase 2: Module Manager**
+   - Develop the frontend for the Module Manager
+   - Implement the backend API for module management
+   - Create functionality for installing, removing, enabling, and disabling modules
+
+3. **Phase 3: Dashboard Module**
+   - Develop the frontend for the Dashboard
+   - Implement the backend API for the Dashboard
+   - Connect frontend and backend
+
+4. **Phase 4: Network Settings Module**
+   - Develop the frontend for Network Settings
+   - Implement the backend API for Network Settings
+   - Connect frontend and backend
+
+5. **Phase 5: WiFi Module**
+   - Develop the frontend for WiFi Configuration
+   - Implement the backend API for WiFi Configuration
+   - Connect frontend and backend
+
+6. **Phase 6: Firewall Module**
+   - Develop the frontend for Firewall
+   - Implement the backend API for Firewall
+   - Connect frontend and backend
+
+7. **Phase 7: Tunnel Manager Module**
+   - Develop the frontend for Tunnel Manager
+   - Implement the backend API for Tunnel Manager
+   - Connect frontend and backend
+
+8. **Phase 8: Routing Module**
+   - Develop the frontend for Routing
+   - Implement the backend API for Routing
+   - Connect frontend and backend
+
+9. **Phase 9: General Settings Module**
+   - Develop the frontend for General Settings
+   - Implement the backend API for General Settings
+   - Connect frontend and backend
+
+10. **Phase 10: Integration and Testing**
+    - Integrate all modules
+    - Perform comprehensive testing
+    - Fix bugs and optimize performance
+
+## Documentation Requirements
+- Maintain an `api_endpoints.md` file that documents all API endpoints as they are developed
+- Document the YAML configuration structure
+- Provide installation and usage instructions
+
+## Design Guidelines
+- Modern, coder-style interface
+- Dark/light theme support
+- Clean, minimalist design
+- Responsive layout for different screen sizes
+- Consistent styling across all modules
+
+## Technical Constraints
+- Optimize for performance on single-board computers
+- Ensure security best practices
+- Implement proper error handling and logging
+- Use asynchronous processing where appropriate
+
+For each module, complete both the frontend and backend implementation before moving to the next module. Document all API endpoints in the api_endpoints.md file as they are developed.

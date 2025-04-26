@@ -1,0 +1,135 @@
+/**
+ * Стили для модальных окон
+ */
+
+/* Фон модального окна */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(2px);
+}
+
+.modal-backdrop.show {
+    opacity: 1;
+}
+
+/* Контейнер модального окна */
+.modal-dialog {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 1.75rem auto;
+    pointer-events: none;
+    transform: translateY(-25px);
+    transition: transform 0.3s ease;
+}
+
+.modal-backdrop.show .modal-dialog {
+    transform: translateY(0);
+}
+
+/* Для больших модальных окон */
+.modal-dialog-large {
+    max-width: 800px;
+}
+
+/* Для маленьких модальных окон */
+.modal-dialog-small {
+    max-width: 400px;
+}
+
+/* Контент модального окна */
+.modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    pointer-events: auto;
+    background-color: var(--card-bg);
+    background-clip: padding-box;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    outline: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+/* Заголовок модального окна */
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0.25rem;
+    transition: color 0.15s ease-in-out;
+}
+
+.modal-close:hover {
+    color: var(--text-color);
+}
+
+/* Тело модального окна */
+.modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 1rem;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+/* Подвал модального окна */
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+    gap: 0.5rem;
+}
+
+/* Анимация появления модального окна */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes modalFadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-25px);
+    }
+}

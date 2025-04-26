@@ -1,0 +1,123 @@
+/**
+ * ArmRouter - Темы для интерфейса
+ * Содержит переменные для светлой и темной темы
+ */
+
+:root {
+    /* Светлая тема (по умолчанию) */
+    --primary-color: #4285F4;
+    --primary-rgb: 66, 133, 244;
+    --primary-hover: #3367D6;
+    --primary-active: #2A56C6;
+    --primary-light: #E8F0FE;
+    
+    --success-color: #34A853;
+    --success-rgb: 52, 168, 83;
+    --warning-color: #FBBC05;
+    --warning-rgb: 251, 188, 5;
+    --danger-color: #EA4335;
+    --danger-rgb: 234, 67, 53;
+    --info-color: #4285F4;
+    --info-rgb: 66, 133, 244;
+    
+    --text-color: #202124;
+    --text-secondary: #5f6368;
+    --text-muted: #80868b;
+    --text-disabled: #bdc1c6;
+    
+    --bg-color: #f8f9fa;
+    --bg-rgb: 248, 249, 250;
+    --card-bg: #ffffff;
+    --hover-bg: rgba(0, 0, 0, 0.05);
+    --border-color: #e0e0e0;
+    
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+    
+    --sidebar-width: 250px;
+    --sidebar-collapsed-width: 70px;
+    --topbar-height: 60px;
+    --footer-height: 40px;
+    
+    /* Специфичные переменные для светлой темы */
+    --visualizer-bg: #f0f2f5;
+    --chart-grid-color: rgba(0, 0, 0, 0.1);
+}
+
+.dark-theme {
+    /* Тёмная тема */
+    --primary-color: #4285F4;
+    --primary-rgb: 66, 133, 244;
+    --primary-hover: #5c9eff;
+    --primary-active: #3367D6;
+    --primary-light: #3c4043;
+    
+    --success-color: #34A853;
+    --success-rgb: 52, 168, 83;
+    --warning-color: #FBBC05;
+    --warning-rgb: 251, 188, 5;
+    --danger-color: #EA4335;
+    --danger-rgb: 234, 67, 53;
+    --info-color: #4285F4;
+    --info-rgb: 66, 133, 244;
+    
+    --text-color: #e8eaed;
+    --text-secondary: #bdc1c6;
+    --text-muted: #9aa0a6;
+    --text-disabled: #5f6368;
+    
+    --bg-color: #202124;
+    --bg-rgb: 32, 33, 36;
+    --card-bg: #292a2d;
+    --hover-bg: rgba(255, 255, 255, 0.05);
+    --border-color: #3c4043;
+    
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.5);
+    
+    /* Специфичные переменные для темной темы */
+    --visualizer-bg: #1d1e20;
+    --chart-grid-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Высококонтрастная тема */
+.high-contrast-theme {
+    --primary-color: #0000ff;
+    --primary-rgb: 0, 0, 255;
+    --primary-hover: #0000cc;
+    --primary-active: #0000aa;
+    --primary-light: #ccccff;
+    
+    --success-color: #00aa00;
+    --success-rgb: 0, 170, 0;
+    --warning-color: #ffcc00;
+    --warning-rgb: 255, 204, 0;
+    --danger-color: #ff0000;
+    --danger-rgb: 255, 0, 0;
+    --info-color: #0099ff;
+    --info-rgb: 0, 153, 255;
+    
+    --text-color: #000000;
+    --text-secondary: #333333;
+    --text-muted: #666666;
+    --text-disabled: #999999;
+    
+    --bg-color: #ffffff;
+    --bg-rgb: 255, 255, 255;
+    --card-bg: #ffffff;
+    --hover-bg: rgba(0, 0, 0, 0.1);
+    --border-color: #000000;
+    
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.4);
+    
+    --visualizer-bg: #f0f0f0;
+    --chart-grid-color: rgba(0, 0, 0, 0.2);
+    
+    /* Увеличенные размеры для улучшения доступности */
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 80px;
+}

@@ -1,0 +1,48 @@
+dashboard:
+  name: Панель управления
+  description: Обзор системы и статус
+  enabled: true
+  core: true
+  version: 1.0.0
+network:
+  name: Сеть
+  description: Настройка сетевых интерфейсов
+  enabled: true
+  core: true
+  version: 1.0.0
+wifi:
+  name: WiFi
+  description: Настройка беспроводной сети
+  enabled: true
+  core: false
+  version: 1.0.0
+firewall:
+  name: Брандмауэр
+  description: Правила брандмауэра и настройки безопасности
+  enabled: true
+  core: false
+  version: 1.0.0
+tunnel:
+  name: Туннели
+  description: VPN и опции безопасного туннелирования
+  enabled: true
+  core: false
+  version: 1.0.0
+routing:
+  name: Маршрутизация
+  description: Расширенная настройка маршрутизации
+  enabled: true
+  core: false
+  version: 1.0.0
+settings:
+  name: Настройки
+  description: Системные настройки и предпочтения
+  enabled: true
+  core: true
+  version: 1.0.0
+module-manager:
+  name: Модули
+  description: Управление модулями и расширениями роутера
+  enabled: true
+  core: true
+  version: 1.0.0
